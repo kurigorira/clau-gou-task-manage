@@ -124,8 +124,8 @@ export default function HomePage() {
           />
           <FeatureCard
             title="Googleカレンダー連携"
-            body="締切をカレンダーに自動登録。双方向同期で予定とタスクを一元管理します。"
-            status="Phase 2"
+            body="締切をカレンダーに登録し、予定をタスクと並べて表示。設定から接続できます。"
+            status="利用可能"
           />
         </div>
       </section>

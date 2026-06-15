@@ -3,6 +3,8 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTasks } from "@/lib/store";
+import { useGoogle } from "@/lib/google";
+import { deleteEvent } from "@/lib/calendarApi";
 import { STATUS_LABEL, STATUS_ORDER, type Task, type TaskStatus } from "@/lib/types";
 import { formatJaDate, daysUntil } from "@/lib/date";
 import { StatusBadge, PriorityBadge, SkillTag } from "@/components/badges";
@@ -19,6 +21,7 @@ type ModalState =
 
 function TasksPageInner() {
   const { tasks, ready, addTask, updateTask, deleteTask, getTask } = useTasks();
+  const { isConnected, accessToken } = useGoogle();
   const searchParams = useSearchParams();
   const [view, setView] = useState<View>("list");
   const [modal, setModal] = useState<ModalState>({ type: "none" });
@@ -43,10 +46,14 @@ function TasksPageInner() {
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm("このタスクを削除しますか？")) {
-      deleteTask(id);
-      close();
+    if (!window.confirm("このタスクを削除しますか？")) return;
+    const task = getTask(id);
+    // 連携中で登録済みイベントがあれば、カレンダー側も削除する（失敗しても続行）。
+    if (task?.googleEventId && isConnected && accessToken) {
+      void deleteEvent(accessToken, task.googleEventId).catch(() => undefined);
     }
+    deleteTask(id);
+    close();
   };
 
   const selected =

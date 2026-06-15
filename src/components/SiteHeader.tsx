@@ -2,16 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useGoogle } from "@/lib/google";
 
 const NAV = [
   { href: "/", label: "ホーム" },
   { href: "/tasks", label: "タスク" },
   { href: "/calendar", label: "カレンダー" },
   { href: "/knowledge", label: "ナレッジ" },
+  { href: "/settings", label: "設定" },
 ];
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const { isConnected } = useGoogle();
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -41,6 +44,22 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
+          <Link
+            href="/settings"
+            title={isConnected ? "Google連携: 接続済み" : "Google連携: 未接続"}
+            className={`ml-1 hidden items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium sm:inline-flex ${
+              isConnected
+                ? "bg-emerald-50 text-emerald-700"
+                : "bg-slate-100 text-slate-500"
+            }`}
+          >
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                isConnected ? "bg-emerald-500" : "bg-slate-400"
+              }`}
+            />
+            Google
+          </Link>
         </nav>
       </div>
     </header>

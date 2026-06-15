@@ -3,6 +3,7 @@
 import type { Task } from "@/lib/types";
 import { formatJaDate } from "@/lib/date";
 import { StatusBadge, PriorityBadge, SkillTag } from "@/components/badges";
+import { CalendarSync } from "@/components/CalendarSync";
 
 export function TaskDetail({
   task,
@@ -24,6 +25,9 @@ export function TaskDetail({
       {task.description && (
         <p className="whitespace-pre-wrap text-sm text-slate-700">{task.description}</p>
       )}
+
+      {/* Googleカレンダー連携 */}
+      <CalendarSync task={task} />
 
       {/* ★必要な知識・技術 */}
       <section className="rounded-xl border border-brand-100 bg-brand-50/50 p-4">
