@@ -8,6 +8,7 @@ import {
   requestNotifyPermission,
   setNotifyEnabled,
 } from "@/lib/notify";
+import { DataManager } from "@/components/DataManager";
 
 export default function SettingsPage() {
   const {
@@ -248,6 +249,9 @@ export default function SettingsPage() {
           スマホでは「ホーム画面に追加」でインストールすると使いやすくなります。
         </p>
       </section>
+
+      {/* データ管理（エクスポート/インポート） */}
+      <DataManager />
 
       {/* Googleセットアップ手順 */}
       <section className="rounded-2xl border border-brand-100 bg-brand-50/40 p-6">

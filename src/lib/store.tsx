@@ -89,6 +89,8 @@ interface TaskContextValue {
   updateTask: (id: string, patch: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   getTask: (id: string) => Task | undefined;
+  /** 全タスクを置き換える（インポート・全削除に使用）。 */
+  replaceAll: (tasks: Task[]) => void;
 }
 
 const TaskContext = createContext<TaskContextValue | null>(null);
@@ -176,9 +178,13 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     [tasks],
   );
 
+  const replaceAll = useCallback<TaskContextValue["replaceAll"]>((next) => {
+    setTasks(next);
+  }, []);
+
   const value = useMemo<TaskContextValue>(
-    () => ({ tasks, ready, addTask, updateTask, deleteTask, getTask }),
-    [tasks, ready, addTask, updateTask, deleteTask, getTask],
+    () => ({ tasks, ready, addTask, updateTask, deleteTask, getTask, replaceAll }),
+    [tasks, ready, addTask, updateTask, deleteTask, getTask, replaceAll],
   );
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
