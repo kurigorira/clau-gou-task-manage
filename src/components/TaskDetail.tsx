@@ -4,6 +4,7 @@ import type { Task } from "@/lib/types";
 import { formatJaDate } from "@/lib/date";
 import { StatusBadge, PriorityBadge, SkillTag } from "@/components/badges";
 import { CalendarSync } from "@/components/CalendarSync";
+import { AiAssist } from "@/components/AiAssist";
 
 export function TaskDetail({
   task,
@@ -71,6 +72,9 @@ export function TaskDetail({
           </div>
         )}
       </section>
+
+      {/* AIアシスト（必要知識の提案・サブタスク分解） */}
+      <AiAssist task={task} />
 
       {task.tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">

@@ -118,8 +118,8 @@ export default function HomePage() {
             status="利用可能"
           />
           <FeatureCard
-            title="必要な知識・技術"
-            body="各タスクに必要なスキルや参考資料を紐付け。あとから見返してナレッジにできます。"
+            title="必要な知識・技術 / AI"
+            body="各タスクに必要なスキルや参考資料を紐付け。AIが必要知識の提案やサブタスク分解も行います。"
             status="利用可能"
           />
           <FeatureCard
