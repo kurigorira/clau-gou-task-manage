@@ -1,11 +1,18 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTasks } from "@/lib/store";
 import { useGoogle } from "@/lib/google";
 import { deleteEvent } from "@/lib/calendarApi";
-import { STATUS_LABEL, STATUS_ORDER, type Task, type TaskStatus } from "@/lib/types";
+import {
+  PRIORITY_LABEL,
+  STATUS_LABEL,
+  STATUS_ORDER,
+  type Task,
+  type TaskPriority,
+  type TaskStatus,
+} from "@/lib/types";
 import { formatJaDate, daysUntil } from "@/lib/date";
 import { StatusBadge, PriorityBadge, SkillTag } from "@/components/badges";
 import { Modal } from "@/components/Modal";
@@ -25,6 +32,26 @@ function TasksPageInner() {
   const searchParams = useSearchParams();
   const [view, setView] = useState<View>("list");
   const [modal, setModal] = useState<ModalState>({ type: "none" });
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
+  const [priorityFilter, setPriorityFilter] = useState<TaskPriority | "all">("all");
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return tasks.filter((t) => {
+      if (statusFilter !== "all" && t.status !== statusFilter) return false;
+      if (priorityFilter !== "all" && t.priority !== priorityFilter) return false;
+      if (q) {
+        const hay = [t.title, t.description, t.knowledgeNotes, ...t.requiredSkills, ...t.tags]
+          .join(" ")
+          .toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [tasks, query, statusFilter, priorityFilter]);
+
+  const hasFilter = query.trim() !== "" || statusFilter !== "all" || priorityFilter !== "all";
 
   // ホームの「+ 新しいタスク」から ?new=1 で来たら作成フォームを開く。
   useEffect(() => {
@@ -65,7 +92,11 @@ function TasksPageInner() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900">タスク</h1>
           <p className="text-sm text-slate-500">
-            {ready ? `${tasks.length} 件のタスク` : "読み込み中..."}
+            {!ready
+              ? "読み込み中..."
+              : hasFilter
+                ? `${filtered.length} / ${tasks.length} 件`
+                : `${tasks.length} 件のタスク`}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -86,15 +117,53 @@ function TasksPageInner() {
         </div>
       </div>
 
+      {ready && tasks.length > 0 && (
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="タイトル・スキル・タグで検索..."
+            className="input sm:flex-1"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as TaskStatus | "all")}
+            className="input sm:w-40"
+          >
+            <option value="all">状態: すべて</option>
+            <option value="todo">未着手</option>
+            <option value="in-progress">進行中</option>
+            <option value="done">完了</option>
+          </select>
+          <select
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value as TaskPriority | "all")}
+            className="input sm:w-40"
+          >
+            <option value="all">優先度: すべて</option>
+            {(["high", "medium", "low"] as TaskPriority[]).map((p) => (
+              <option key={p} value={p}>
+                {PRIORITY_LABEL[p]}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {!ready ? (
         <p className="text-sm text-slate-500">読み込み中...</p>
       ) : tasks.length === 0 ? (
         <EmptyState onCreate={() => setModal({ type: "create" })} />
+      ) : filtered.length === 0 ? (
+        <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-sm text-slate-500">
+          条件に一致するタスクがありません。
+        </p>
       ) : view === "list" ? (
-        <ListView tasks={tasks} onSelect={(id) => setModal({ type: "detail", id })} />
+        <ListView tasks={filtered} onSelect={(id) => setModal({ type: "detail", id })} />
       ) : (
         <BoardView
-          tasks={tasks}
+          tasks={filtered}
           onSelect={(id) => setModal({ type: "detail", id })}
           onMove={(id, status) => updateTask(id, { status })}
         />

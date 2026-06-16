@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type {
+  Recurrence,
   ReferenceLink,
   Task,
   TaskPriority,
@@ -20,6 +21,7 @@ const EMPTY: TaskFormValues = {
   knowledgeNotes: "",
   referenceLinks: [],
   tags: [],
+  recurrence: "none",
 };
 
 function parseCommaList(value: string): string[] {
@@ -51,6 +53,7 @@ export function TaskForm({
         knowledgeNotes: initial.knowledgeNotes,
         referenceLinks: initial.referenceLinks,
         tags: initial.tags,
+        recurrence: initial.recurrence,
       }
     : EMPTY;
 
@@ -128,6 +131,19 @@ export function TaskForm({
           />
         </Field>
       </div>
+
+      <Field label="繰り返し（完了時に次回分を自動作成）">
+        <select
+          value={values.recurrence}
+          onChange={(e) => set("recurrence", e.target.value as Recurrence)}
+          className="input"
+        >
+          <option value="none">なし</option>
+          <option value="daily">毎日</option>
+          <option value="weekly">毎週</option>
+          <option value="monthly">毎月</option>
+        </select>
+      </Field>
 
       <Field label="必要な知識・技術（カンマ区切り）">
         <input

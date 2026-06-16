@@ -1,5 +1,6 @@
 export type TaskStatus = "todo" | "in-progress" | "done";
 export type TaskPriority = "high" | "medium" | "low";
+export type Recurrence = "none" | "daily" | "weekly" | "monthly";
 
 export interface ReferenceLink {
   label: string;
@@ -23,6 +24,8 @@ export interface Task {
   /** ★参考資料リンク */
   referenceLinks: ReferenceLink[];
   tags: string[];
+  /** 繰り返し設定。完了時に次回分を自動生成する。 */
+  recurrence: Recurrence;
   createdAt: string;
 }
 
@@ -36,6 +39,13 @@ export const PRIORITY_LABEL: Record<TaskPriority, string> = {
   high: "高",
   medium: "中",
   low: "低",
+};
+
+export const RECURRENCE_LABEL: Record<Recurrence, string> = {
+  none: "なし",
+  daily: "毎日",
+  weekly: "毎週",
+  monthly: "毎月",
 };
 
 export const STATUS_ORDER: TaskStatus[] = ["todo", "in-progress", "done"];

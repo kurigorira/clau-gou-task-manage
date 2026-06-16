@@ -8,6 +8,7 @@ const NAV = [
   { href: "/", label: "ホーム" },
   { href: "/tasks", label: "タスク" },
   { href: "/calendar", label: "カレンダー" },
+  { href: "/stats", label: "進捗" },
   { href: "/knowledge", label: "ナレッジ" },
   { href: "/settings", label: "設定" },
 ];

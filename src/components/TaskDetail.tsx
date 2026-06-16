@@ -1,6 +1,6 @@
 "use client";
 
-import type { Task } from "@/lib/types";
+import { RECURRENCE_LABEL, type Task } from "@/lib/types";
 import { formatJaDate } from "@/lib/date";
 import { StatusBadge, PriorityBadge, SkillTag } from "@/components/badges";
 import { CalendarSync } from "@/components/CalendarSync";
@@ -21,6 +21,11 @@ export function TaskDetail({
         <StatusBadge status={task.status} />
         <PriorityBadge priority={task.priority} />
         <span className="text-sm text-slate-500">締切: {formatJaDate(task.dueDate)}</span>
+        {task.recurrence !== "none" && (
+          <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+            🔁 {RECURRENCE_LABEL[task.recurrence]}
+          </span>
+        )}
       </div>
 
       {task.description && (

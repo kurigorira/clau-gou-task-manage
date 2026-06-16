@@ -1,0 +1,19 @@
+{
+  "name": "Taskful — タスク管理",
+  "short_name": "Taskful",
+  "description": "Googleカレンダー連携とAIアシストを備えた、ホームページ型のタスク管理サイト。",
+  "start_url": "/clau-gou-task-manage/",
+  "scope": "/clau-gou-task-manage/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#4f46e5",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "/clau-gou-task-manage/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    }
+  ]
+}

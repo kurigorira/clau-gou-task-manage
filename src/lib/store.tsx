@@ -32,6 +32,7 @@ const seedTasks: Task[] = [
       },
     ],
     tags: ["開発", "公開"],
+    recurrence: "none",
     createdAt: "2026-06-15",
   },
   {
@@ -52,6 +53,7 @@ const seedTasks: Task[] = [
       },
     ],
     tags: ["設計", "連携"],
+    recurrence: "none",
     createdAt: "2026-06-15",
   },
   {
@@ -66,9 +68,19 @@ const seedTasks: Task[] = [
     knowledgeNotes: "KPT（Keep/Problem/Try）で整理すると書きやすい。",
     referenceLinks: [],
     tags: ["習慣"],
+    recurrence: "weekly",
     createdAt: "2026-06-10",
   },
 ];
+
+/** YYYY-MM-DD を繰り返し設定に応じて次回日付に進める。 */
+function advanceDate(iso: string, recurrence: Task["recurrence"]): string {
+  const d = new Date(`${iso}T00:00:00`);
+  if (recurrence === "daily") d.setDate(d.getDate() + 1);
+  else if (recurrence === "weekly") d.setDate(d.getDate() + 7);
+  else if (recurrence === "monthly") d.setMonth(d.getMonth() + 1);
+  return d.toISOString().slice(0, 10);
+}
 
 interface TaskContextValue {
   tasks: Task[];
@@ -128,9 +140,31 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const updateTask = useCallback<TaskContextValue["updateTask"]>((id, patch) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, ...patch } : t)),
-    );
+    setTasks((prev) => {
+      const next = prev.map((t) => (t.id === id ? { ...t, ...patch } : t));
+      // 繰り返しタスクが「完了」になったら、次回分を自動生成する。
+      const before = prev.find((t) => t.id === id);
+      const after = next.find((t) => t.id === id);
+      if (
+        before &&
+        after &&
+        before.status !== "done" &&
+        after.status === "done" &&
+        after.recurrence !== "none" &&
+        after.dueDate
+      ) {
+        const clone: Task = {
+          ...after,
+          id: createId(),
+          status: "todo",
+          dueDate: advanceDate(after.dueDate, after.recurrence),
+          googleEventId: null,
+          createdAt: new Date().toISOString().slice(0, 10),
+        };
+        return [clone, ...next];
+      }
+      return next;
+    });
   }, []);
 
   const deleteTask = useCallback<TaskContextValue["deleteTask"]>((id) => {

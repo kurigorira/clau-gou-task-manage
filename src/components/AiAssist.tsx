@@ -82,6 +82,7 @@ export function AiAssist({ task }: { task: Task }) {
         knowledgeNotes: "",
         referenceLinks: [],
         tags: [...task.tags, `親:${task.title}`.slice(0, 30)],
+        recurrence: "none",
       });
     }
     setAdded(true);
