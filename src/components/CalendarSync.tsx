@@ -55,7 +55,7 @@ export function CalendarSync({ task }: { task: Task }) {
 
   if (!isConnected) {
     return (
-      <div className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
+      <div className="rounded-lg bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-500 dark:text-slate-400">
         <Link href="/settings" className="font-medium text-brand-600 hover:underline">
           設定でGoogle連携
         </Link>
@@ -66,7 +66,7 @@ export function CalendarSync({ task }: { task: Task }) {
 
   if (!task.dueDate) {
     return (
-      <div className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
+      <div className="rounded-lg bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-500 dark:text-slate-400">
         締切を設定すると、カレンダーに登録できます。
       </div>
     );

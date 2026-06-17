@@ -51,7 +51,7 @@ export default function HomePage() {
 
       {/* サマリー */}
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <StatCard label="未完了" value={ready ? open.length : "–"} accent="text-slate-900" />
+        <StatCard label="未完了" value={ready ? open.length : "–"} accent="text-slate-900 dark:text-slate-100" />
         <StatCard label="進行中" value={ready ? inProgress.length : "–"} accent="text-blue-600" />
         <StatCard label="完了" value={ready ? done.length : "–"} accent="text-emerald-600" />
         <StatCard label="完了率" value={ready ? `${completionRate}%` : "–"} accent="text-brand-600" />
@@ -60,15 +60,15 @@ export default function HomePage() {
       {/* 直近の締切 */}
       <section>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-slate-900">直近の締切</h2>
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">直近の締切</h2>
           <Link href="/tasks" className="text-sm font-medium text-brand-600 hover:text-brand-700">
             すべて見る →
           </Link>
         </div>
         {!ready ? (
-          <p className="text-sm text-slate-500">読み込み中...</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">読み込み中...</p>
         ) : upcoming.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
+          <p className="rounded-xl border border-dashed border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 p-6 text-center text-sm text-slate-500 dark:text-slate-400">
             締切のあるタスクはありません。
           </p>
         ) : (
@@ -78,23 +78,23 @@ export default function HomePage() {
               return (
                 <li
                   key={task.id}
-                  className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+                  className="flex items-center justify-between rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-medium text-slate-900">{task.title}</p>
+                    <p className="truncate font-medium text-slate-900 dark:text-slate-100">{task.title}</p>
                     <div className="mt-1 flex flex-wrap items-center gap-2">
                       <StatusBadge status={task.status} />
                       <PriorityBadge priority={task.priority} />
                     </div>
                   </div>
                   <div className="ml-4 shrink-0 text-right">
-                    <p className="text-sm font-medium text-slate-900">
+                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
                       {formatJaDate(task.dueDate)}
                     </p>
                     {d !== null && (
                       <p
                         className={`text-xs ${
-                          d < 0 ? "text-rose-600" : d <= 2 ? "text-amber-600" : "text-slate-500"
+                          d < 0 ? "text-rose-600" : d <= 2 ? "text-amber-600" : "text-slate-500 dark:text-slate-400"
                         }`}
                       >
                         {d < 0 ? `${-d}日超過` : d === 0 ? "今日" : `あと${d}日`}
@@ -110,7 +110,7 @@ export default function HomePage() {
 
       {/* 特徴 */}
       <section>
-        <h2 className="mb-4 text-xl font-semibold text-slate-900">できること</h2>
+        <h2 className="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-100">できること</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           <FeatureCard
             title="タスク管理"
@@ -143,8 +143,8 @@ function StatCard({
   accent: string;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <p className="text-sm text-slate-500">{label}</p>
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm">
+      <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
       <p className={`mt-1 text-3xl font-bold ${accent}`}>{value}</p>
     </div>
   );
@@ -161,18 +161,18 @@ function FeatureCard({
 }) {
   const isAvailable = status === "利用可能";
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-slate-900">{title}</h3>
+        <h3 className="font-semibold text-slate-900 dark:text-slate-100">{title}</h3>
         <span
           className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-            isAvailable ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"
+            isAvailable ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
           }`}
         >
           {status}
         </span>
       </div>
-      <p className="mt-2 text-sm text-slate-600">{body}</p>
+      <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{body}</p>
     </div>
   );
 }

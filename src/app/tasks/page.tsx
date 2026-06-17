@@ -90,8 +90,8 @@ function TasksPageInner() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">タスク</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">タスク</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             {!ready
               ? "読み込み中..."
               : hasFilter
@@ -100,7 +100,7 @@ function TasksPageInner() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-lg border border-slate-200 bg-white p-0.5">
+          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-0.5">
             <ViewButton active={view === "list"} onClick={() => setView("list")}>
               リスト
             </ViewButton>
@@ -152,11 +152,11 @@ function TasksPageInner() {
       )}
 
       {!ready ? (
-        <p className="text-sm text-slate-500">読み込み中...</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">読み込み中...</p>
       ) : tasks.length === 0 ? (
         <EmptyState onCreate={() => setModal({ type: "create" })} />
       ) : filtered.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-sm text-slate-500">
+        <p className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 p-12 text-center text-sm text-slate-500 dark:text-slate-400">
           条件に一致するタスクがありません。
         </p>
       ) : view === "list" ? (
@@ -217,7 +217,7 @@ function ViewButton({
     <button
       onClick={onClick}
       className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
-        active ? "bg-brand-600 text-white" : "text-slate-600 hover:bg-slate-100"
+        active ? "bg-brand-600 text-white" : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
       }`}
     >
       {children}
@@ -238,13 +238,13 @@ function ListView({
         <li key={task.id}>
           <button
             onClick={() => onSelect(task.id)}
-            className="w-full rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-brand-300 hover:shadow"
+            className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 text-left shadow-sm transition hover:border-brand-300 hover:shadow"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="font-medium text-slate-900">{task.title}</p>
+                <p className="font-medium text-slate-900 dark:text-slate-100">{task.title}</p>
                 {task.description && (
-                  <p className="mt-0.5 truncate text-sm text-slate-500">
+                  <p className="mt-0.5 truncate text-sm text-slate-500 dark:text-slate-400">
                     {task.description}
                   </p>
                 )}
@@ -258,7 +258,7 @@ function ListView({
                 <SkillTag key={s}>{s}</SkillTag>
               ))}
               {task.requiredSkills.length > 3 && (
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-slate-400 dark:text-slate-500">
                   +{task.requiredSkills.length - 3}
                 </span>
               )}
@@ -284,22 +284,22 @@ function BoardView({
       {STATUS_ORDER.map((status) => {
         const column = tasks.filter((t) => t.status === status);
         return (
-          <div key={status} className="rounded-xl bg-slate-100/70 p-3">
+          <div key={status} className="rounded-xl bg-slate-100/70 dark:bg-slate-800/60 p-3">
             <div className="mb-3 flex items-center justify-between px-1">
-              <h3 className="text-sm font-semibold text-slate-700">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                 {STATUS_LABEL[status]}
               </h3>
-              <span className="text-xs text-slate-400">{column.length}</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500">{column.length}</span>
             </div>
             <div className="space-y-2">
               {column.map((task) => (
                 <div
                   key={task.id}
-                  className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
+                  className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 shadow-sm"
                 >
                   <button
                     onClick={() => onSelect(task.id)}
-                    className="text-left text-sm font-medium text-slate-900 hover:text-brand-700"
+                    className="text-left text-sm font-medium text-slate-900 dark:text-slate-100 hover:text-brand-700"
                   >
                     {task.title}
                   </button>
@@ -312,7 +312,7 @@ function BoardView({
                       <button
                         key={s}
                         onClick={() => onMove(task.id, s)}
-                        className="rounded bg-slate-100 px-2 py-1 text-xs text-slate-600 hover:bg-brand-100 hover:text-brand-700"
+                        className="rounded bg-slate-100 dark:bg-slate-700 px-2 py-1 text-xs text-slate-600 dark:text-slate-300 hover:bg-brand-100 hover:text-brand-700"
                       >
                         → {STATUS_LABEL[s]}
                       </button>
@@ -321,7 +321,7 @@ function BoardView({
                 </div>
               ))}
               {column.length === 0 && (
-                <p className="px-1 py-4 text-center text-xs text-slate-400">なし</p>
+                <p className="px-1 py-4 text-center text-xs text-slate-400 dark:text-slate-500">なし</p>
               )}
             </div>
           </div>
@@ -336,12 +336,12 @@ function DueChip({ due, compact }: { due: string | null; compact?: boolean }) {
   const d = daysUntil(due);
   const color =
     d === null
-      ? "text-slate-500"
+      ? "text-slate-500 dark:text-slate-400"
       : d < 0
         ? "text-rose-600"
         : d <= 2
           ? "text-amber-600"
-          : "text-slate-500";
+          : "text-slate-500 dark:text-slate-400";
   return (
     <span className={`shrink-0 text-xs font-medium ${color}`}>
       {compact ? formatJaDate(due) : `📅 ${formatJaDate(due)}`}
@@ -351,8 +351,8 @@ function DueChip({ due, compact }: { due: string | null; compact?: boolean }) {
 
 function EmptyState({ onCreate }: { onCreate: () => void }) {
   return (
-    <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
-      <p className="text-slate-600">まだタスクがありません。</p>
+    <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 p-12 text-center">
+      <p className="text-slate-600 dark:text-slate-300">まだタスクがありません。</p>
       <button
         onClick={onCreate}
         className="mt-4 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700"
@@ -365,7 +365,7 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
 
 export default function TasksPage() {
   return (
-    <Suspense fallback={<p className="text-sm text-slate-500">読み込み中...</p>}>
+    <Suspense fallback={<p className="text-sm text-slate-500 dark:text-slate-400">読み込み中...</p>}>
       <TasksPageInner />
     </Suspense>
   );

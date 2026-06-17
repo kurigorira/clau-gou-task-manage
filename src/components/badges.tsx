@@ -6,7 +6,7 @@ import {
 } from "@/lib/types";
 
 const STATUS_STYLE: Record<TaskStatus, string> = {
-  todo: "bg-slate-100 text-slate-700",
+  todo: "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200",
   "in-progress": "bg-blue-100 text-blue-700",
   done: "bg-emerald-100 text-emerald-700",
 };
@@ -14,7 +14,7 @@ const STATUS_STYLE: Record<TaskStatus, string> = {
 const PRIORITY_STYLE: Record<TaskPriority, string> = {
   high: "bg-rose-100 text-rose-700",
   medium: "bg-amber-100 text-amber-700",
-  low: "bg-slate-100 text-slate-600",
+  low: "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
 };
 
 export function StatusBadge({ status }: { status: TaskStatus }) {

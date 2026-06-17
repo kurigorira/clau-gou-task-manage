@@ -93,31 +93,31 @@ export default function CalendarPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">カレンダー</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">カレンダー</h1>
         <div className="flex items-center gap-2">
-          <button onClick={prev} className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm hover:bg-slate-50">
+          <button onClick={prev} className="rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-700">
             ‹
           </button>
-          <span className="w-28 text-center text-sm font-semibold text-slate-700">
+          <span className="w-28 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
             {cursor.year}年{cursor.month + 1}月
           </span>
-          <button onClick={next} className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm hover:bg-slate-50">
+          <button onClick={next} className="rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-700">
             ›
           </button>
         </div>
       </div>
 
       {isConnected ? (
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-slate-200 bg-white p-4 text-sm">
-          <span className="inline-flex items-center gap-1.5 text-slate-600">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 text-sm">
+          <span className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
             <span className="h-2.5 w-2.5 rounded bg-brand-400" />
             タスクの締切
           </span>
-          <span className="inline-flex items-center gap-1.5 text-slate-600">
+          <span className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
             <span className="h-2.5 w-2.5 rounded bg-emerald-400" />
             Googleカレンダーの予定
           </span>
-          {loadingEvents && <span className="text-xs text-slate-400">予定を読み込み中...</span>}
+          {loadingEvents && <span className="text-xs text-slate-400 dark:text-slate-500">予定を読み込み中...</span>}
           {eventsError && <span className="text-xs text-rose-600">{eventsError}</span>}
         </div>
       ) : (
@@ -130,13 +130,13 @@ export default function CalendarPage() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm">
+        <div className="grid grid-cols-7 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
           {WEEKDAYS.map((w, i) => (
             <div
               key={w}
               className={`py-2 text-center text-xs font-semibold ${
-                i === 0 ? "text-rose-500" : i === 6 ? "text-blue-500" : "text-slate-500"
+                i === 0 ? "text-rose-500" : i === 6 ? "text-blue-500" : "text-slate-500 dark:text-slate-400"
               }`}
             >
               {w}
@@ -151,7 +151,7 @@ export default function CalendarPage() {
             return (
               <div
                 key={i}
-                className={`min-h-[92px] border-b border-r border-slate-100 p-1.5 ${
+                className={`min-h-[92px] border-b border-r border-slate-100 dark:border-slate-700 p-1.5 ${
                   cell.iso ? "" : "bg-slate-50/50"
                 }`}
               >
@@ -159,7 +159,7 @@ export default function CalendarPage() {
                   <>
                     <span
                       className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs ${
-                        isToday ? "bg-brand-600 font-semibold text-white" : "text-slate-600"
+                        isToday ? "bg-brand-600 font-semibold text-white" : "text-slate-600 dark:text-slate-300"
                       }`}
                     >
                       {cell.day}
@@ -176,7 +176,7 @@ export default function CalendarPage() {
                           </div>
                         ))}
                       {dayTasks.length > 2 && (
-                        <div className="text-[11px] text-slate-400">他{dayTasks.length - 2}件</div>
+                        <div className="text-[11px] text-slate-400 dark:text-slate-500">他{dayTasks.length - 2}件</div>
                       )}
                       {dayEvents.slice(0, 2).map((ev) => (
                         <div
@@ -188,7 +188,7 @@ export default function CalendarPage() {
                         </div>
                       ))}
                       {dayEvents.length > 2 && (
-                        <div className="text-[11px] text-slate-400">予定+{dayEvents.length - 2}</div>
+                        <div className="text-[11px] text-slate-400 dark:text-slate-500">予定+{dayEvents.length - 2}</div>
                       )}
                     </div>
                   </>

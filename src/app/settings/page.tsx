@@ -56,18 +56,18 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">設定</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">設定</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Googleカレンダー連携の設定を行います。
         </p>
       </div>
 
       {/* 接続状態 */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-semibold text-slate-900">Googleカレンダー連携</h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <h2 className="font-semibold text-slate-900 dark:text-slate-100">Googleカレンダー連携</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               {isConnected
                 ? "接続済み。タスクの締切をカレンダーに登録できます。"
                 : "未接続です。Client ID を設定して接続してください。"}
@@ -75,7 +75,7 @@ export default function SettingsPage() {
           </div>
           <span
             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
-              isConnected ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"
+              isConnected ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
             }`}
           >
             <span
@@ -91,7 +91,7 @@ export default function SettingsPage() {
           {isConnected ? (
             <button
               onClick={disconnect}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              className="rounded-lg border border-slate-300 dark:border-slate-600 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
             >
               切断する
             </button>
@@ -105,7 +105,7 @@ export default function SettingsPage() {
             </button>
           )}
           {!scriptReady && (
-            <span className="self-center text-xs text-slate-400">
+            <span className="self-center text-xs text-slate-400 dark:text-slate-500">
               Google認証スクリプトを読み込み中...
             </span>
           )}
@@ -119,9 +119,9 @@ export default function SettingsPage() {
       </section>
 
       {/* Client ID 設定 */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="font-semibold text-slate-900">OAuth Client ID</h2>
-        <p className="mt-1 text-sm text-slate-500">
+      <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm">
+        <h2 className="font-semibold text-slate-900 dark:text-slate-100">OAuth Client ID</h2>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Google Cloud で発行した「ウェブアプリケーション」用の Client ID を入力してください。
         </p>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
@@ -143,17 +143,17 @@ export default function SettingsPage() {
       </section>
 
       {/* AI連携（Claude） */}
-      <section className="rounded-2xl border border-violet-100 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-violet-100 bg-white dark:bg-slate-800 p-6 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-semibold text-slate-900">AIアシスト（Claude）</h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <h2 className="font-semibold text-slate-900 dark:text-slate-100">AIアシスト（Claude）</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               各タスクの「必要な知識・技術」の自動提案や、サブタスク分解に使います。
             </p>
           </div>
           <span
             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
-              aiConfigured ? "bg-violet-50 text-violet-700" : "bg-slate-100 text-slate-500"
+              aiConfigured ? "bg-violet-50 text-violet-700" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
             }`}
           >
             <span
@@ -183,7 +183,7 @@ export default function SettingsPage() {
         </div>
         {keySaved && <p className="mt-2 text-sm text-emerald-600">保存しました。</p>}
 
-        <div className="mt-4 rounded-lg bg-violet-50/60 p-3 text-xs text-slate-600">
+        <div className="mt-4 rounded-lg bg-violet-50/60 p-3 text-xs text-slate-600 dark:text-slate-300">
           <p className="font-medium text-violet-800">取得方法</p>
           <ol className="mt-1 list-decimal space-y-1 pl-5">
             <li>
@@ -199,7 +199,7 @@ export default function SettingsPage() {
             </li>
             <li>「API Keys」から新しいキーを発行し、上のフォームに貼り付けて保存</li>
           </ol>
-          <p className="mt-2 text-[11px] text-slate-500">
+          <p className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
             ⚠️ APIキーはこのブラウザ内（localStorage）にのみ保存され、Anthropic以外には送信されません。
             ブラウザから直接APIを呼び出す個人利用向けの構成です。共有端末では利用後に切断（キーを空にして保存）してください。
             利用にはAnthropicの従量課金が発生します。
@@ -208,17 +208,17 @@ export default function SettingsPage() {
       </section>
 
       {/* 締切通知 */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-semibold text-slate-900">締切リマインダー（通知）</h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <h2 className="font-semibold text-slate-900 dark:text-slate-100">締切リマインダー（通知）</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               締切が今日・超過の未完了タスクを、アプリ起動時にブラウザ通知でお知らせします（1日1回）。
             </p>
           </div>
           <span
             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
-              notifyOn ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"
+              notifyOn ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
             }`}
           >
             <span
@@ -231,7 +231,7 @@ export default function SettingsPage() {
           {notifyOn ? (
             <button
               onClick={disableNotify}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              className="rounded-lg border border-slate-300 dark:border-slate-600 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
             >
               通知を無効にする
             </button>
@@ -244,7 +244,7 @@ export default function SettingsPage() {
             </button>
           )}
         </div>
-        <p className="mt-3 text-xs text-slate-400">
+        <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
           ※ ブラウザの通知許可が必要です。端末を閉じている間のプッシュ通知はサーバーが必要なため未対応です。
           スマホでは「ホーム画面に追加」でインストールすると使いやすくなります。
         </p>
@@ -256,7 +256,7 @@ export default function SettingsPage() {
       {/* Googleセットアップ手順 */}
       <section className="rounded-2xl border border-brand-100 bg-brand-50/40 p-6">
         <h2 className="font-semibold text-brand-800">セットアップ手順</h2>
-        <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-slate-700">
+        <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-200">
           <li>
             <a
               href="https://console.cloud.google.com/"
@@ -276,18 +276,18 @@ export default function SettingsPage() {
           </li>
           <li>
             <strong>承認済みの JavaScript 生成元</strong> に公開URLを追加:
-            <code className="mx-1 rounded bg-white px-1.5 py-0.5 text-xs text-slate-800">
+            <code className="mx-1 rounded bg-white dark:bg-slate-800 px-1.5 py-0.5 text-xs text-slate-800 dark:text-slate-100">
               https://kurigorira.github.io
             </code>
             （ローカル開発時は
-            <code className="mx-1 rounded bg-white px-1.5 py-0.5 text-xs text-slate-800">
+            <code className="mx-1 rounded bg-white dark:bg-slate-800 px-1.5 py-0.5 text-xs text-slate-800 dark:text-slate-100">
               http://localhost:3000
             </code>
             も追加）
           </li>
           <li>発行された Client ID を上のフォームに貼り付けて保存 → 「Googleと接続する」</li>
         </ol>
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
           ※ アクセストークンはブラウザのメモリ上のみで保持され、サーバーには送信されません。
           ページを再読み込みすると再接続が必要です。
         </p>

@@ -52,7 +52,7 @@ export default function StatsPage() {
   }, [tasks]);
 
   if (!ready) {
-    return <p className="text-sm text-slate-500">読み込み中...</p>;
+    return <p className="text-sm text-slate-500 dark:text-slate-400">読み込み中...</p>;
   }
 
   const statusColors: Record<string, string> = {
@@ -69,28 +69,28 @@ export default function StatsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">進捗ダッシュボード</h1>
-        <p className="mt-1 text-sm text-slate-500">タスクの状況をまとめて確認できます。</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">進捗ダッシュボード</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">タスクの状況をまとめて確認できます。</p>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
         {/* 完了率リング */}
-        <div className="flex items-center gap-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm">
           <Ring percent={stats.completion} />
           <div>
-            <p className="text-sm text-slate-500">完了率</p>
-            <p className="text-3xl font-bold text-slate-900">{stats.completion}%</p>
-            <p className="mt-1 text-sm text-slate-500">全 {stats.total} 件</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">完了率</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">{stats.completion}%</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">全 {stats.total} 件</p>
           </div>
         </div>
 
         {/* 締切サマリー */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="mb-3 text-sm font-medium text-slate-700">締切（未完了タスク）</p>
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm">
+          <p className="mb-3 text-sm font-medium text-slate-700 dark:text-slate-200">締切（未完了タスク）</p>
           <div className="grid grid-cols-3 gap-3 text-center">
             <DueStat label="超過" value={stats.overdue} accent="text-rose-600" />
             <DueStat label="今日" value={stats.today} accent="text-amber-600" />
-            <DueStat label="7日以内" value={stats.week} accent="text-slate-700" />
+            <DueStat label="7日以内" value={stats.week} accent="text-slate-700 dark:text-slate-200" />
           </div>
         </div>
       </div>
@@ -109,15 +109,15 @@ export default function StatsPage() {
       {/* タグ別 */}
       {stats.topTags.length > 0 && (
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-900">タグ別（上位）</h2>
+          <h2 className="mb-3 text-lg font-semibold text-slate-900 dark:text-slate-100">タグ別（上位）</h2>
           <div className="flex flex-wrap gap-2">
             {stats.topTags.map(([tag, count]) => (
               <span
                 key={tag}
-                className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm ring-1 ring-slate-200"
+                className="inline-flex items-center gap-1.5 rounded-full bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-200 shadow-sm ring-1 ring-slate-200"
               >
                 #{tag}
-                <span className="rounded-full bg-slate-100 px-1.5 text-xs text-slate-500">
+                <span className="rounded-full bg-slate-100 dark:bg-slate-700 px-1.5 text-xs text-slate-500 dark:text-slate-400">
                   {count}
                 </span>
               </span>
@@ -162,9 +162,9 @@ function DueStat({
   accent: string;
 }) {
   return (
-    <div className="rounded-xl bg-slate-50 p-3">
+    <div className="rounded-xl bg-slate-50 dark:bg-slate-900 p-3">
       <p className={`text-2xl font-bold ${accent}`}>{value}</p>
-      <p className="text-xs text-slate-500">{label}</p>
+      <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
     </div>
   );
 }
@@ -182,20 +182,20 @@ function BarSection({
 }) {
   return (
     <section>
-      <h2 className="mb-3 text-lg font-semibold text-slate-900">{title}</h2>
-      <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h2 className="mb-3 text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
+      <div className="space-y-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm">
         {rows.map((row) => {
           const pct = total === 0 ? 0 : Math.round((row.count / total) * 100);
           return (
             <div key={row.key} className="flex items-center gap-3">
-              <span className="w-16 shrink-0 text-sm text-slate-600">{row.label}</span>
-              <div className="h-3 flex-1 overflow-hidden rounded-full bg-slate-100">
+              <span className="w-16 shrink-0 text-sm text-slate-600 dark:text-slate-300">{row.label}</span>
+              <div className="h-3 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
                 <div
                   className={`h-full rounded-full ${colors[row.key] ?? "bg-slate-400"}`}
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <span className="w-12 shrink-0 text-right text-sm text-slate-500">
+              <span className="w-12 shrink-0 text-right text-sm text-slate-500 dark:text-slate-400">
                 {row.count}
               </span>
             </div>

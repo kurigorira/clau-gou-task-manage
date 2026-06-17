@@ -16,7 +16,7 @@ export function AiAssist({ task }: { task: Task }) {
 
   if (!isConfigured) {
     return (
-      <div className="rounded-lg border border-violet-100 bg-violet-50/60 px-3 py-2 text-xs text-slate-600">
+      <div className="rounded-lg border border-violet-100 bg-violet-50/60 px-3 py-2 text-xs text-slate-600 dark:text-slate-300">
         🤖{" "}
         <Link href="/settings" className="font-medium text-violet-700 hover:underline">
           設定でAI連携
@@ -115,14 +115,14 @@ export function AiAssist({ task }: { task: Task }) {
       )}
 
       {subtasks && subtasks.length > 0 && (
-        <div className="mt-3 rounded-lg border border-violet-200 bg-white p-3">
-          <p className="text-xs font-medium text-slate-700">提案されたサブタスク</p>
-          <ol className="mt-1 list-decimal space-y-1 pl-5 text-sm text-slate-700">
+        <div className="mt-3 rounded-lg border border-violet-200 bg-white dark:bg-slate-800 p-3">
+          <p className="text-xs font-medium text-slate-700 dark:text-slate-200">提案されたサブタスク</p>
+          <ol className="mt-1 list-decimal space-y-1 pl-5 text-sm text-slate-700 dark:text-slate-200">
             {subtasks.map((st, i) => (
               <li key={i}>
                 <span className="font-medium">{st.title}</span>
                 {st.description && (
-                  <span className="text-slate-500"> — {st.description}</span>
+                  <span className="text-slate-500 dark:text-slate-400"> — {st.description}</span>
                 )}
               </li>
             ))}
@@ -136,7 +136,7 @@ export function AiAssist({ task }: { task: Task }) {
             </button>
             <button
               onClick={() => setSubtasks(null)}
-              className="rounded-md px-3 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-100"
+              className="rounded-md px-3 py-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
             >
               閉じる
             </button>
@@ -144,7 +144,7 @@ export function AiAssist({ task }: { task: Task }) {
         </div>
       )}
 
-      <p className="mt-2 text-[11px] text-slate-400">
+      <p className="mt-2 text-[11px] text-slate-400 dark:text-slate-500">
         ※ AIの提案は参考情報です。リンクの実在性などは確認してください。
       </p>
     </div>
