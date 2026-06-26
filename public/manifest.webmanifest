@@ -1,6 +1,6 @@
 {
-  "name": "Taskful — タスク管理",
-  "short_name": "Taskful",
+  "name": "Atlas Lite — タスク管理",
+  "short_name": "Atlas Lite",
   "description": "Googleカレンダー連携とAIアシストを備えた、ホームページ型のタスク管理サイト。",
   "start_url": "/clau-gou-task-manage/",
   "scope": "/clau-gou-task-manage/",

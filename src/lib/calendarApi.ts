@@ -115,7 +115,7 @@ function buildEventBody(task: {
   if (task.requiredSkills.length > 0) {
     lines.push("", `必要な知識・技術: ${task.requiredSkills.join(", ")}`);
   }
-  lines.push("", "（Taskful から登録）");
+  lines.push("", "（Atlas Lite から登録）");
   return {
     summary: `📋 ${task.title}`,
     description: lines.filter((l) => l !== undefined).join("\n"),

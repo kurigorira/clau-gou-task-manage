@@ -36,7 +36,7 @@ export function ReminderManager() {
     if (today > 0) parts.push(`今日締切 ${today}件`);
 
     try {
-      new Notification("Taskful — 締切リマインダー", {
+      new Notification("Atlas Lite — 締切リマインダー", {
         body: parts.join(" / "),
         icon: `${BASE}/icon.svg`,
         tag: "taskful-due",

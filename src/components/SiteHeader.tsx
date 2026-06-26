@@ -25,10 +25,10 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="group flex items-center gap-2.5">
           <span className="flex h-7 w-7 items-center justify-center rounded bg-brand-600 text-sm font-bold text-white">
-            T
+            A
           </span>
           <span className="font-mono text-sm font-semibold uppercase tracking-[0.2em] text-white">
-            Taskful
+            Atlas Lite
           </span>
         </Link>
 

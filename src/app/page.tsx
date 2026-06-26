@@ -26,7 +26,7 @@ export default function HomePage() {
         <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-brand-600/20 blur-3xl" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.04] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:32px_32px]" />
         <div className="relative">
-          <p className="eyebrow">Taskful — Task Operating System</p>
+          <p className="eyebrow">Atlas Lite — Task Operating System</p>
           <h1 className="mt-6 max-w-3xl text-4xl font-bold leading-[1.04] tracking-tight text-white sm:text-6xl">
             やるべきことと、その
             <span className="text-brand-500">知識</span>を、

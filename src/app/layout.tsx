@@ -24,7 +24,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Taskful — タスク管理",
+  title: "Atlas Lite — タスク管理",
   description:
     "Googleカレンダー連携とAIアシストを備えた、ダーク基調のタスク管理サイト。各タスクに必要な知識・技術も管理できます。",
 };
