@@ -84,7 +84,7 @@ export default function KnowledgePage() {
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="truncate text-sm font-medium text-brand-600 hover:underline"
+                  className="truncate text-sm font-medium text-brand-400 hover:underline"
                 >
                   {link.label || link.url} ↗
                 </a>

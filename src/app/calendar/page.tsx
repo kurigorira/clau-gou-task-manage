@@ -118,10 +118,10 @@ export default function CalendarPage() {
             Googleカレンダーの予定
           </span>
           {loadingEvents && <span className="text-xs text-slate-400 dark:text-slate-500">予定を読み込み中...</span>}
-          {eventsError && <span className="text-xs text-rose-600">{eventsError}</span>}
+          {eventsError && <span className="text-xs text-rose-400">{eventsError}</span>}
         </div>
       ) : (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-300">
           表示中はタスクの締切のみです。
           <Link href="/settings" className="font-medium underline">
             設定でGoogle連携
@@ -170,7 +170,7 @@ export default function CalendarPage() {
                           <div
                             key={t.id}
                             title={t.title}
-                            className="truncate rounded bg-brand-50 px-1 py-0.5 text-[11px] text-brand-700"
+                            className="truncate rounded bg-brand-500/10 px-1 py-0.5 text-[11px] text-brand-300"
                           >
                             {t.title}
                           </div>
@@ -182,7 +182,7 @@ export default function CalendarPage() {
                         <div
                           key={ev.id}
                           title={ev.summary ?? "(無題)"}
-                          className="truncate rounded bg-emerald-50 px-1 py-0.5 text-[11px] text-emerald-700"
+                          className="truncate rounded bg-emerald-500/10 px-1 py-0.5 text-[11px] text-emerald-300"
                         >
                           {ev.summary ?? "(無題)"}
                         </div>

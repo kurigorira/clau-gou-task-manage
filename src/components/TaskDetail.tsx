@@ -36,8 +36,8 @@ export function TaskDetail({
       <CalendarSync task={task} />
 
       {/* ★必要な知識・技術 */}
-      <section className="rounded-xl border border-brand-100 bg-brand-50/50 p-4">
-        <h3 className="text-sm font-semibold text-brand-800">必要な知識・技術</h3>
+      <section className="rounded-xl border border-brand-500/30 bg-brand-500/10 p-4">
+        <h3 className="text-sm font-semibold text-brand-300">必要な知識・技術</h3>
         {task.requiredSkills.length > 0 ? (
           <div className="mt-2 flex flex-wrap gap-1.5">
             {task.requiredSkills.map((skill) => (
@@ -50,7 +50,7 @@ export function TaskDetail({
 
         {task.knowledgeNotes && (
           <div className="mt-3">
-            <p className="text-xs font-medium text-brand-700">前提知識・メモ</p>
+            <p className="text-xs font-medium text-brand-300">前提知識・メモ</p>
             <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">
               {task.knowledgeNotes}
             </p>
@@ -59,7 +59,7 @@ export function TaskDetail({
 
         {task.referenceLinks.length > 0 && (
           <div className="mt-3">
-            <p className="text-xs font-medium text-brand-700">参考資料</p>
+            <p className="text-xs font-medium text-brand-300">参考資料</p>
             <ul className="mt-1 space-y-1">
               {task.referenceLinks.map((link, i) => (
                 <li key={i}>
@@ -67,7 +67,7 @@ export function TaskDetail({
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-brand-600 underline-offset-2 hover:underline"
+                    className="text-sm text-brand-400 underline-offset-2 hover:underline"
                   >
                     {link.label || link.url} ↗
                   </a>
@@ -97,7 +97,7 @@ export function TaskDetail({
       <div className="flex justify-end gap-2 border-t border-slate-100 dark:border-slate-700 pt-4">
         <button
           onClick={onDelete}
-          className="rounded-lg px-4 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50"
+          className="rounded-lg px-4 py-2 text-sm font-medium text-rose-400 hover:bg-rose-500/10"
         >
           削除
         </button>

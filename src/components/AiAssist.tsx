@@ -16,9 +16,9 @@ export function AiAssist({ task }: { task: Task }) {
 
   if (!isConfigured) {
     return (
-      <div className="rounded-lg border border-violet-100 bg-violet-50/60 px-3 py-2 text-xs text-slate-600 dark:text-slate-300">
+      <div className="rounded-lg border border-brand-500/30 bg-brand-500/10 px-3 py-2 text-xs text-slate-600 dark:text-slate-300">
         🤖{" "}
-        <Link href="/settings" className="font-medium text-violet-700 hover:underline">
+        <Link href="/settings" className="font-medium text-brand-300 hover:underline">
           設定でAI連携
         </Link>
         すると、必要な知識の自動提案やサブタスク分解が使えます。
@@ -90,32 +90,32 @@ export function AiAssist({ task }: { task: Task }) {
   };
 
   return (
-    <div className="rounded-xl border border-violet-100 bg-violet-50/40 p-3">
-      <p className="text-xs font-semibold text-violet-800">🤖 AIアシスト</p>
+    <div className="rounded-xl border border-brand-500/30 bg-brand-500/10 p-3">
+      <p className="text-xs font-semibold text-brand-300">🤖 AIアシスト</p>
       <div className="mt-2 flex flex-wrap gap-2">
         <button
           onClick={handleSuggestSkills}
           disabled={busy !== null}
-          className="rounded-md bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
+          className="rounded-md bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-500 disabled:opacity-50"
         >
           {busy === "skills" ? "提案中..." : "必要な知識・技術を提案"}
         </button>
         <button
           onClick={handleDecompose}
           disabled={busy !== null}
-          className="rounded-md border border-violet-300 px-3 py-1.5 text-xs font-semibold text-violet-700 hover:bg-violet-100 disabled:opacity-50"
+          className="rounded-md border border-brand-500/40 px-3 py-1.5 text-xs font-semibold text-brand-300 hover:bg-brand-500/20 disabled:opacity-50"
         >
           {busy === "subtasks" ? "分解中..." : "サブタスクに分解"}
         </button>
       </div>
 
-      {error && <p className="mt-2 text-xs text-rose-600">{error}</p>}
+      {error && <p className="mt-2 text-xs text-rose-400">{error}</p>}
       {added && (
-        <p className="mt-2 text-xs text-emerald-600">サブタスクをタスクとして追加しました。</p>
+        <p className="mt-2 text-xs text-emerald-400">サブタスクをタスクとして追加しました。</p>
       )}
 
       {subtasks && subtasks.length > 0 && (
-        <div className="mt-3 rounded-lg border border-violet-200 bg-white dark:bg-slate-800 p-3">
+        <div className="mt-3 rounded-lg border border-brand-500/30 bg-white dark:bg-slate-800 p-3">
           <p className="text-xs font-medium text-slate-700 dark:text-slate-200">提案されたサブタスク</p>
           <ol className="mt-1 list-decimal space-y-1 pl-5 text-sm text-slate-700 dark:text-slate-200">
             {subtasks.map((st, i) => (
@@ -130,7 +130,7 @@ export function AiAssist({ task }: { task: Task }) {
           <div className="mt-2 flex gap-2">
             <button
               onClick={addSubtasksAsTasks}
-              className="rounded-md bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-violet-700"
+              className="rounded-md bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-500"
             >
               タスクとして追加
             </button>

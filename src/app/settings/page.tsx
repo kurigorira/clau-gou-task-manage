@@ -75,7 +75,7 @@ export default function SettingsPage() {
           </div>
           <span
             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
-              isConnected ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
+              isConnected ? "bg-emerald-500/10 text-emerald-300" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
             }`}
           >
             <span
@@ -112,7 +112,7 @@ export default function SettingsPage() {
         </div>
 
         {error && (
-          <p className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+          <p className="mt-3 rounded-lg bg-rose-500/10 px-3 py-2 text-sm text-rose-300">
             {error}
           </p>
         )}
@@ -134,16 +134,16 @@ export default function SettingsPage() {
           />
           <button
             onClick={handleSave}
-            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700"
+            className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-slate-700"
           >
             保存
           </button>
         </div>
-        {saved && <p className="mt-2 text-sm text-emerald-600">保存しました。</p>}
+        {saved && <p className="mt-2 text-sm text-emerald-400">保存しました。</p>}
       </section>
 
       {/* AI連携（Claude） */}
-      <section className="rounded-2xl border border-violet-100 bg-white dark:bg-slate-800 p-6 shadow-sm">
+      <section className="rounded-2xl border border-brand-500/30 bg-white dark:bg-slate-800 p-6 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-semibold text-slate-900 dark:text-slate-100">AIアシスト（Claude）</h2>
@@ -153,12 +153,12 @@ export default function SettingsPage() {
           </div>
           <span
             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
-              aiConfigured ? "bg-violet-50 text-violet-700" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
+              aiConfigured ? "bg-brand-500/10 text-brand-300" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
             }`}
           >
             <span
               className={`h-2 w-2 rounded-full ${
-                aiConfigured ? "bg-violet-500" : "bg-slate-400"
+                aiConfigured ? "bg-brand-500" : "bg-slate-400"
               }`}
             />
             {aiConfigured ? "設定済み" : "未設定"}
@@ -176,22 +176,22 @@ export default function SettingsPage() {
           />
           <button
             onClick={handleSaveKey}
-            className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500"
           >
             保存
           </button>
         </div>
-        {keySaved && <p className="mt-2 text-sm text-emerald-600">保存しました。</p>}
+        {keySaved && <p className="mt-2 text-sm text-emerald-400">保存しました。</p>}
 
-        <div className="mt-4 rounded-lg bg-violet-50/60 p-3 text-xs text-slate-600 dark:text-slate-300">
-          <p className="font-medium text-violet-800">取得方法</p>
+        <div className="mt-4 rounded-lg bg-brand-500/10 p-3 text-xs text-slate-600 dark:text-slate-300">
+          <p className="font-medium text-brand-300">取得方法</p>
           <ol className="mt-1 list-decimal space-y-1 pl-5">
             <li>
               <a
                 href="https://console.anthropic.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-violet-700 underline-offset-2 hover:underline"
+                className="text-brand-300 underline-offset-2 hover:underline"
               >
                 Anthropic Console
               </a>
@@ -218,7 +218,7 @@ export default function SettingsPage() {
           </div>
           <span
             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
-              notifyOn ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
+              notifyOn ? "bg-emerald-500/10 text-emerald-300" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
             }`}
           >
             <span
@@ -238,7 +238,7 @@ export default function SettingsPage() {
           ) : (
             <button
               onClick={enableNotify}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700"
+              className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-slate-700"
             >
               通知を有効にする
             </button>
@@ -254,15 +254,15 @@ export default function SettingsPage() {
       <DataManager />
 
       {/* Googleセットアップ手順 */}
-      <section className="rounded-2xl border border-brand-100 bg-brand-50/40 p-6">
-        <h2 className="font-semibold text-brand-800">セットアップ手順</h2>
+      <section className="rounded-2xl border border-brand-500/30 bg-brand-500/10 p-6">
+        <h2 className="font-semibold text-brand-300">セットアップ手順</h2>
         <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-200">
           <li>
             <a
               href="https://console.cloud.google.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-brand-600 underline-offset-2 hover:underline"
+              className="text-brand-400 underline-offset-2 hover:underline"
             >
               Google Cloud Console
             </a>

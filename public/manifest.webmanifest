@@ -5,8 +5,8 @@
   "start_url": "/clau-gou-task-manage/",
   "scope": "/clau-gou-task-manage/",
   "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#4f46e5",
+  "background_color": "#0d0d11",
+  "theme_color": "#2f4bff",
   "lang": "ja",
   "icons": [
     {

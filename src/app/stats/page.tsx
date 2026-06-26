@@ -88,7 +88,7 @@ export default function StatsPage() {
         <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm">
           <p className="mb-3 text-sm font-medium text-slate-700 dark:text-slate-200">締切（未完了タスク）</p>
           <div className="grid grid-cols-3 gap-3 text-center">
-            <DueStat label="超過" value={stats.overdue} accent="text-rose-600" />
+            <DueStat label="超過" value={stats.overdue} accent="text-rose-400" />
             <DueStat label="今日" value={stats.today} accent="text-amber-600" />
             <DueStat label="7日以内" value={stats.week} accent="text-slate-700 dark:text-slate-200" />
           </div>
@@ -114,7 +114,7 @@ export default function StatsPage() {
             {stats.topTags.map(([tag, count]) => (
               <span
                 key={tag}
-                className="inline-flex items-center gap-1.5 rounded-full bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-200 shadow-sm ring-1 ring-slate-200"
+                className="inline-flex items-center gap-1.5 rounded-full bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-200 shadow-sm ring-1 ring-slate-700"
               >
                 #{tag}
                 <span className="rounded-full bg-slate-100 dark:bg-slate-700 px-1.5 text-xs text-slate-500 dark:text-slate-400">

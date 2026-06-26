@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { TaskProvider } from "@/lib/store";
 import { GoogleProvider } from "@/lib/google";
@@ -8,14 +9,28 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { PwaRegister } from "@/components/PwaRegister";
 import { ReminderManager } from "@/components/ReminderManager";
 
+const space = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-space",
+  display: "swap",
+});
+
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Taskful — タスク管理",
   description:
-    "Googleカレンダー連携を見据えた、ホームページ型のタスク管理サイト。各タスクに必要な知識・技術も管理できます。",
+    "Googleカレンダー連携とAIアシストを備えた、ダーク基調のタスク管理サイト。各タスクに必要な知識・技術も管理できます。",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#4f46e5",
+  themeColor: "#0d0d11",
 };
 
 export default function RootLayout({
@@ -23,14 +38,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // ハイドレーション前にテーマを適用し、画面のちらつき（FOUC）を防ぐ。
-  const themeScript = `(function(){try{var t=localStorage.getItem('clau-gou-theme');if(t==='dark'||(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`;
-
   return (
-    <html lang="ja" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
+    <html lang="ja" className={`dark ${space.variable} ${mono.variable}`}>
       <body>
         <GoogleProvider>
           <AnthropicProvider>
@@ -38,7 +47,7 @@ export default function RootLayout({
               <PwaRegister />
               <ReminderManager />
               <SiteHeader />
-              <main className="mx-auto min-h-[calc(100vh-8rem)] w-full max-w-6xl px-4 py-8 sm:px-6">
+              <main className="mx-auto min-h-[calc(100vh-8rem)] w-full max-w-6xl px-4 py-10 sm:px-6">
                 {children}
               </main>
               <SiteFooter />

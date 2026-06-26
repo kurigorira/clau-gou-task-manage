@@ -194,7 +194,7 @@ export function TaskForm({
               <button
                 type="button"
                 onClick={() => setLinks((prev) => prev.filter((_, j) => j !== i))}
-                className="rounded-md px-2 text-slate-400 dark:text-slate-500 hover:text-rose-600"
+                className="rounded-md px-2 text-slate-400 dark:text-slate-500 hover:text-rose-400"
                 aria-label="削除"
               >
                 ✕
@@ -204,7 +204,7 @@ export function TaskForm({
           <button
             type="button"
             onClick={() => setLinks((prev) => [...prev, { label: "", url: "" }])}
-            className="text-sm font-medium text-brand-600 hover:text-brand-700"
+            className="text-sm font-medium text-brand-400 hover:text-brand-300"
           >
             + リンクを追加
           </button>

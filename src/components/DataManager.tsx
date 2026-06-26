@@ -71,7 +71,7 @@ export function DataManager() {
         </button>
         <button
           onClick={handleClear}
-          className="rounded-lg px-4 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50"
+          className="rounded-lg px-4 py-2 text-sm font-medium text-rose-400 hover:bg-rose-500/10"
         >
           全タスクを削除
         </button>
@@ -87,7 +87,7 @@ export function DataManager() {
       {message && (
         <p
           className={`mt-3 text-sm ${
-            message.kind === "ok" ? "text-emerald-600" : "text-rose-600"
+            message.kind === "ok" ? "text-emerald-400" : "text-rose-400"
           }`}
         >
           {message.text}

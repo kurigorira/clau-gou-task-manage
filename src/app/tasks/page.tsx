@@ -299,7 +299,7 @@ function BoardView({
                 >
                   <button
                     onClick={() => onSelect(task.id)}
-                    className="text-left text-sm font-medium text-slate-900 dark:text-slate-100 hover:text-brand-700"
+                    className="text-left text-sm font-medium text-slate-900 dark:text-slate-100 hover:text-brand-300"
                   >
                     {task.title}
                   </button>
@@ -312,7 +312,7 @@ function BoardView({
                       <button
                         key={s}
                         onClick={() => onMove(task.id, s)}
-                        className="rounded bg-slate-100 dark:bg-slate-700 px-2 py-1 text-xs text-slate-600 dark:text-slate-300 hover:bg-brand-100 hover:text-brand-700"
+                        className="rounded bg-slate-100 dark:bg-slate-700 px-2 py-1 text-xs text-slate-600 dark:text-slate-300 hover:bg-brand-500/20 hover:text-brand-300"
                       >
                         → {STATUS_LABEL[s]}
                       </button>
@@ -338,7 +338,7 @@ function DueChip({ due, compact }: { due: string | null; compact?: boolean }) {
     d === null
       ? "text-slate-500 dark:text-slate-400"
       : d < 0
-        ? "text-rose-600"
+        ? "text-rose-400"
         : d <= 2
           ? "text-amber-600"
           : "text-slate-500 dark:text-slate-400";

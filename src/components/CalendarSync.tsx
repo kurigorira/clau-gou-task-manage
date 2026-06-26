@@ -56,7 +56,7 @@ export function CalendarSync({ task }: { task: Task }) {
   if (!isConnected) {
     return (
       <div className="rounded-lg bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-500 dark:text-slate-400">
-        <Link href="/settings" className="font-medium text-brand-600 hover:underline">
+        <Link href="/settings" className="font-medium text-brand-400 hover:underline">
           設定でGoogle連携
         </Link>
         すると、締切をカレンダーに登録できます。
@@ -77,20 +77,20 @@ export function CalendarSync({ task }: { task: Task }) {
       <div className="flex flex-wrap items-center gap-2">
         {task.googleEventId ? (
           <>
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700">
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-300">
               ✓ カレンダー登録済み
             </span>
             <button
               onClick={update}
               disabled={busy}
-              className="rounded-md bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100 disabled:opacity-50"
+              className="rounded-md bg-brand-500/10 px-2.5 py-1 text-xs font-medium text-brand-300 hover:bg-brand-500/20 disabled:opacity-50"
             >
               内容を更新
             </button>
             <button
               onClick={remove}
               disabled={busy}
-              className="rounded-md px-2.5 py-1 text-xs font-medium text-rose-600 hover:bg-rose-50 disabled:opacity-50"
+              className="rounded-md px-2.5 py-1 text-xs font-medium text-rose-400 hover:bg-rose-500/10 disabled:opacity-50"
             >
               登録を解除
             </button>
@@ -105,7 +105,7 @@ export function CalendarSync({ task }: { task: Task }) {
           </button>
         )}
       </div>
-      {error && <p className="text-xs text-rose-600">{error}</p>}
+      {error && <p className="text-xs text-rose-400">{error}</p>}
     </div>
   );
 }
