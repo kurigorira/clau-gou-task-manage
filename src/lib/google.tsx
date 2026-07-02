@@ -147,16 +147,21 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
         },
         // ポップアップが開けない/閉じられた・生成元不一致などOAuth以外の失敗を拾う。
         error_callback: (err) => {
-          const map: Record<string, string> = {
-            popup_failed_to_open:
-              "認証ポップアップを開けませんでした。ブラウザのポップアップブロックを解除してください。",
-            popup_closed: "認証ポップアップが閉じられました。もう一度お試しください。",
-          };
-          const detail = err?.type
-            ? map[err.type] ?? `${err.type}${err.message ? `: ${err.message}` : ""}`
-            : err?.message ?? "不明なエラー";
+          if (err?.type === "popup_failed_to_open") {
+            setError(
+              "認証ポップアップを開けませんでした。ブラウザのポップアップブロックを解除して、もう一度お試しください。",
+            );
+            setStatus("error");
+            return;
+          }
+          // popup_closed は、Googleの「アクセスをブロック（access_denied）」画面の後にも起きる。
+          // 個人利用で最も多い原因＝OAuth同意画面のテストユーザー未登録を案内する。
           setError(
-            `接続に失敗しました（${detail}）。Client IDと、Google Cloud の「承認済みJavaScript生成元」に https://kurigorira.github.io が登録されているかご確認ください。`,
+            "認証が完了しませんでした。多くの場合、Google Cloud の「OAuth 同意画面」で、" +
+              "お使いのGoogleアカウントが『テストユーザー』に登録されていないのが原因です（エラー: access_denied）。" +
+              "対処: ①OAuth同意画面 → テストユーザーに自分のアドレスを追加する、" +
+              "または ②アプリを「公開」して本番に切り替える。" +
+              "あわせて「承認済みJavaScript生成元」に https://kurigorira.github.io が登録されているかもご確認ください。",
           );
           setStatus("error");
         },
