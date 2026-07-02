@@ -1,0 +1,19 @@
+{
+  "name": "Atlas Lite — タスク管理",
+  "short_name": "Atlas Lite",
+  "description": "Googleカレンダー連携とAIアシストを備えた、ホームページ型のタスク管理サイト。",
+  "start_url": "/clau-gou-task-manage/",
+  "scope": "/clau-gou-task-manage/",
+  "display": "standalone",
+  "background_color": "#0d0d11",
+  "theme_color": "#2f4bff",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "/clau-gou-task-manage/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    }
+  ]
+}
