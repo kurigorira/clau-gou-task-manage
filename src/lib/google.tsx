@@ -28,6 +28,10 @@ interface TokenResponse {
   error?: string;
   expires_in?: number;
 }
+interface TokenError {
+  type?: string;
+  message?: string;
+}
 interface TokenClient {
   requestAccessToken: (overrides?: { prompt?: string }) => void;
 }
@@ -40,6 +44,7 @@ declare global {
             client_id: string;
             scope: string;
             callback: (resp: TokenResponse) => void;
+            error_callback?: (err: TokenError) => void;
           }) => TokenClient;
           revoke: (token: string, done?: () => void) => void;
         };
@@ -139,6 +144,21 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
           }
           setAccessToken(resp.access_token);
           setStatus("connected");
+        },
+        // ポップアップが開けない/閉じられた・生成元不一致などOAuth以外の失敗を拾う。
+        error_callback: (err) => {
+          const map: Record<string, string> = {
+            popup_failed_to_open:
+              "認証ポップアップを開けませんでした。ブラウザのポップアップブロックを解除してください。",
+            popup_closed: "認証ポップアップが閉じられました。もう一度お試しください。",
+          };
+          const detail = err?.type
+            ? map[err.type] ?? `${err.type}${err.message ? `: ${err.message}` : ""}`
+            : err?.message ?? "不明なエラー";
+          setError(
+            `接続に失敗しました（${detail}）。Client IDと、Google Cloud の「承認済みJavaScript生成元」に https://kurigorira.github.io が登録されているかご確認ください。`,
+          );
+          setStatus("error");
         },
       });
       tokenClient.requestAccessToken();
