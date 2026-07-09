@@ -20,7 +20,9 @@ const seedTasks: Task[] = [
     description: "Next.jsで作ったサイトをGitHub Pagesに公開する。",
     status: "in-progress",
     priority: "high",
+    startDate: "2026-06-16",
     dueDate: "2026-06-20",
+    parentId: null,
     googleEventId: null,
     requiredSkills: ["Next.js", "GitHub Actions", "静的サイトホスティング"],
     knowledgeNotes:
@@ -36,12 +38,31 @@ const seedTasks: Task[] = [
     createdAt: "2026-06-15",
   },
   {
+    id: "seed-1a",
+    title: "デプロイ設定を確認する",
+    description: "basePath と GitHub Pages の公開元を確認する。",
+    status: "todo",
+    priority: "medium",
+    startDate: "2026-06-16",
+    dueDate: "2026-06-18",
+    parentId: "seed-1",
+    googleEventId: null,
+    requiredSkills: [],
+    knowledgeNotes: "",
+    referenceLinks: [],
+    tags: [],
+    recurrence: "none",
+    createdAt: "2026-06-15",
+  },
+  {
     id: "seed-2",
     title: "Googleカレンダー連携の設計をまとめる",
     description: "OAuth認証と双方向同期のフローを整理する。",
     status: "todo",
     priority: "medium",
+    startDate: "2026-06-18",
     dueDate: "2026-06-25",
+    parentId: null,
     googleEventId: null,
     requiredSkills: ["OAuth 2.0", "Google Calendar API", "サーバーサイド処理"],
     knowledgeNotes:
@@ -62,7 +83,9 @@ const seedTasks: Task[] = [
     description: "今週やったことと学びをまとめる。",
     status: "done",
     priority: "low",
+    startDate: "2026-06-14",
     dueDate: "2026-06-14",
+    parentId: null,
     googleEventId: null,
     requiredSkills: ["振り返りの習慣"],
     knowledgeNotes: "KPT（Keep/Problem/Try）で整理すると書きやすい。",
@@ -159,6 +182,9 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
           ...after,
           id: createId(),
           status: "todo",
+          startDate: after.startDate
+            ? advanceDate(after.startDate, after.recurrence)
+            : null,
           dueDate: advanceDate(after.dueDate, after.recurrence),
           googleEventId: null,
           createdAt: new Date().toISOString().slice(0, 10),
@@ -170,7 +196,12 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const deleteTask = useCallback<TaskContextValue["deleteTask"]>((id) => {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
+    // 削除するタスクの子（小項目）は親を外して大項目化し、データを失わないようにする。
+    setTasks((prev) =>
+      prev
+        .filter((t) => t.id !== id)
+        .map((t) => (t.parentId === id ? { ...t, parentId: null } : t)),
+    );
   }, []);
 
   const getTask = useCallback<TaskContextValue["getTask"]>(

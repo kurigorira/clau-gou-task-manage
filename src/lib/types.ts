@@ -13,8 +13,12 @@ export interface Task {
   description: string;
   status: TaskStatus;
   priority: TaskPriority;
-  /** 締切（ISO日付文字列 YYYY-MM-DD）。Googleカレンダー連携の対象。 */
+  /** 開始日（ISO日付文字列 YYYY-MM-DD）。ガントの帯の始点。 */
+  startDate: string | null;
+  /** 締切（ISO日付文字列 YYYY-MM-DD）。Googleカレンダー連携の対象／ガントの帯の終点。 */
   dueDate: string | null;
+  /** 親タスク（大項目）のID。null なら大項目（トップレベル）。 */
+  parentId: string | null;
   /** Googleカレンダー連携時のイベントID（Phase 2で使用）。 */
   googleEventId: string | null;
   /** ★必要な知識・技術（タグ） */

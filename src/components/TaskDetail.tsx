@@ -2,6 +2,7 @@
 
 import { RECURRENCE_LABEL, type Task } from "@/lib/types";
 import { formatJaDate } from "@/lib/date";
+import { useTasks } from "@/lib/store";
 import { StatusBadge, PriorityBadge, SkillTag } from "@/components/badges";
 import { CalendarSync } from "@/components/CalendarSync";
 import { AiAssist } from "@/components/AiAssist";
@@ -15,21 +16,49 @@ export function TaskDetail({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { tasks } = useTasks();
+  const parent = task.parentId ? tasks.find((t) => t.id === task.parentId) : undefined;
+  const children = tasks.filter((t) => t.parentId === task.id);
+
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center gap-2">
         <StatusBadge status={task.status} />
         <PriorityBadge priority={task.priority} />
-        <span className="text-sm text-slate-500 dark:text-slate-400">締切: {formatJaDate(task.dueDate)}</span>
+        <span className="text-sm text-slate-500 dark:text-slate-400">
+          {task.startDate ? `${formatJaDate(task.startDate)} 〜 ` : ""}
+          {formatJaDate(task.dueDate)}
+        </span>
         {task.recurrence !== "none" && (
           <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-700 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:text-slate-300">
             🔁 {RECURRENCE_LABEL[task.recurrence]}
+          </span>
+        )}
+        {parent && (
+          <span className="inline-flex items-center rounded-full border border-slate-700 px-2.5 py-0.5 text-xs text-slate-400">
+            大項目: {parent.title}
           </span>
         )}
       </div>
 
       {task.description && (
         <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">{task.description}</p>
+      )}
+
+      {children.length > 0 && (
+        <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+          <h3 className="text-sm font-semibold text-slate-200">
+            小項目（{children.length}）
+          </h3>
+          <ul className="mt-2 space-y-1">
+            {children.map((c) => (
+              <li key={c.id} className="flex items-center gap-2 text-sm text-slate-300">
+                <StatusBadge status={c.status} />
+                <span className="truncate">{c.title}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {/* Googleカレンダー連携 */}

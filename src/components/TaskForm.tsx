@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTasks } from "@/lib/store";
 import type {
   Recurrence,
   ReferenceLink,
@@ -16,7 +17,9 @@ const EMPTY: TaskFormValues = {
   description: "",
   status: "todo",
   priority: "medium",
+  startDate: null,
   dueDate: null,
+  parentId: null,
   requiredSkills: [],
   knowledgeNotes: "",
   referenceLinks: [],
@@ -42,13 +45,21 @@ export function TaskForm({
   onCancel: () => void;
   submitLabel?: string;
 }) {
+  const { tasks } = useTasks();
+  // 親（大項目）候補：トップレベルのタスクから自分自身を除く。
+  const parentOptions = tasks.filter(
+    (t) => t.parentId === null && t.id !== initial?.id,
+  );
+
   const base: TaskFormValues = initial
     ? {
         title: initial.title,
         description: initial.description,
         status: initial.status,
         priority: initial.priority,
+        startDate: initial.startDate,
         dueDate: initial.dueDate,
+        parentId: initial.parentId,
         requiredSkills: initial.requiredSkills,
         knowledgeNotes: initial.knowledgeNotes,
         referenceLinks: initial.referenceLinks,
@@ -99,7 +110,7 @@ export function TaskForm({
         />
       </Field>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <Field label="状態">
           <select
             value={values.status}
@@ -122,6 +133,14 @@ export function TaskForm({
             <option value="low">低</option>
           </select>
         </Field>
+        <Field label="開始日">
+          <input
+            type="date"
+            value={values.startDate ?? ""}
+            onChange={(e) => set("startDate", e.target.value || null)}
+            className="input"
+          />
+        </Field>
         <Field label="締切">
           <input
             type="date"
@@ -131,6 +150,21 @@ export function TaskForm({
           />
         </Field>
       </div>
+
+      <Field label="親タスク（大項目）">
+        <select
+          value={values.parentId ?? ""}
+          onChange={(e) => set("parentId", e.target.value || null)}
+          className="input"
+        >
+          <option value="">なし（大項目として登録）</option>
+          {parentOptions.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.title}
+            </option>
+          ))}
+        </select>
+      </Field>
 
       <Field label="繰り返し（完了時に次回分を自動作成）">
         <select

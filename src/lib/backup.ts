@@ -75,6 +75,7 @@ function sanitizeTask(raw: unknown): Task | null {
     ? (o.recurrence as Recurrence)
     : "none";
   const due = asString(o.dueDate);
+  const start = asString(o.startDate);
 
   return {
     id:
@@ -86,7 +87,9 @@ function sanitizeTask(raw: unknown): Task | null {
     description: asString(o.description),
     status,
     priority,
+    startDate: /^\d{4}-\d{2}-\d{2}$/.test(start) ? start : null,
     dueDate: /^\d{4}-\d{2}-\d{2}$/.test(due) ? due : null,
+    parentId: typeof o.parentId === "string" ? o.parentId : null,
     googleEventId: typeof o.googleEventId === "string" ? o.googleEventId : null,
     requiredSkills: asStringArray(o.requiredSkills),
     knowledgeNotes: asString(o.knowledgeNotes),

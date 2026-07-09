@@ -76,12 +76,15 @@ export function AiAssist({ task }: { task: Task }) {
         description: st.description,
         status: "todo",
         priority: task.priority,
-        dueDate: null,
+        startDate: task.startDate,
+        dueDate: task.dueDate,
+        // このタスクの子（小項目）として登録する。
+        parentId: task.parentId ?? task.id,
         googleEventId: null,
         requiredSkills: [],
         knowledgeNotes: "",
         referenceLinks: [],
-        tags: [...task.tags, `親:${task.title}`.slice(0, 30)],
+        tags: task.tags,
         recurrence: "none",
       });
     }

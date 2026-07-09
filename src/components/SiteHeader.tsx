@@ -7,6 +7,7 @@ import { useGoogle } from "@/lib/google";
 const NAV = [
   { href: "/", label: "Home" },
   { href: "/tasks", label: "Tasks" },
+  { href: "/gantt", label: "Gantt" },
   { href: "/calendar", label: "Calendar" },
   { href: "/stats", label: "Stats" },
   { href: "/knowledge", label: "Knowledge" },
