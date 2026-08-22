@@ -8,6 +8,8 @@ import { WeatherWidget } from "@/components/WeatherWidget";
 import { NewsWidget } from "@/components/NewsWidget";
 import { DriveWidget } from "@/components/DriveWidget";
 import { FavoritesWidget } from "@/components/FavoritesWidget";
+import { MiniCalendar } from "@/components/MiniCalendar";
+import { UpcomingEvents } from "@/components/UpcomingEvents";
 
 export default function HomePage() {
   const { tasks, ready } = useTasks();
@@ -110,8 +112,10 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* ウィジェット（天気・ニュース・ドライブ・お気に入り） */}
+      {/* ウィジェット（カレンダー・行事・天気・ニュース・ドライブ・お気に入り） */}
       <section className="grid gap-3 sm:gap-4 lg:grid-cols-2">
+        <MiniCalendar />
+        <UpcomingEvents />
         <WeatherWidget />
         <NewsWidget />
         <DriveWidget />

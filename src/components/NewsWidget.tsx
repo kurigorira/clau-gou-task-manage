@@ -1,15 +1,13 @@
 "use client";
 
 /**
- * ニュースウィジェット。GoogleニュースのRSSをCORSプロキシ経由で取得して見出しを表示する。
- * 静的サイトのため外部プロキシ（allorigins）を利用。失敗時は控えめに案内する。
+ * ニュースウィジェット。GoogleニュースのRSSを複数の経路で順に試して取得する。
+ * 静的サイトのためCORS対応の中継サービスを利用（1つが落ちていても次で取れる）。
  */
 
 import { useCallback, useEffect, useState } from "react";
 
 const FEED_URL = "https://news.google.com/rss?hl=ja&gl=JP&ceid=JP:ja";
-const proxied = (url: string) =>
-  `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
 
 interface NewsItem {
   title: string;
@@ -28,39 +26,92 @@ function relativeTime(dateStr: string): string {
   return `${Math.round(diffH / 24)}日前`;
 }
 
+/** タイムアウト付きfetch。 */
+async function fetchWithTimeout(url: string, ms: number): Promise<Response> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  try {
+    return await fetch(url, { signal: ctrl.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Googleニュースの見出しは「タイトル - 媒体名」形式なので分離する。 */
+function splitTitle(raw: string): { title: string; source: string } {
+  const idx = raw.lastIndexOf(" - ");
+  if (idx > 10) return { title: raw.slice(0, idx), source: raw.slice(idx + 3) };
+  return { title: raw, source: "" };
+}
+
+/** 経路1: rss2json（JSONで返る・高速）。 */
+async function viaRss2json(): Promise<NewsItem[]> {
+  const res = await fetchWithTimeout(
+    `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(FEED_URL)}`,
+    8000,
+  );
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  if (data.status !== "ok" || !Array.isArray(data.items)) throw new Error("bad payload");
+  return data.items.slice(0, 6).map((it: { title: string; link: string; pubDate: string }) => {
+    const { title, source } = splitTitle(it.title ?? "");
+    return { title, source, link: it.link ?? "", pubDate: it.pubDate ?? "" };
+  });
+}
+
+/** 経路2/3: CORSプロキシ経由でRSS(XML)を取得してパース。 */
+async function viaXmlProxy(proxyUrl: string): Promise<NewsItem[]> {
+  const res = await fetchWithTimeout(proxyUrl, 10000);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const xml = await res.text();
+  const doc = new DOMParser().parseFromString(xml, "text/xml");
+  const items = Array.from(doc.querySelectorAll("item"))
+    .slice(0, 6)
+    .map((item) => {
+      const raw = item.querySelector("title")?.textContent ?? "";
+      const { title, source } = splitTitle(raw);
+      return {
+        title,
+        source: item.querySelector("source")?.textContent ?? source,
+        link: item.querySelector("link")?.textContent ?? "",
+        pubDate: item.querySelector("pubDate")?.textContent ?? "",
+      };
+    })
+    .filter((i) => i.title && i.link);
+  if (items.length === 0) throw new Error("empty");
+  return items;
+}
+
+const SOURCES: (() => Promise<NewsItem[]>)[] = [
+  viaRss2json,
+  () => viaXmlProxy(`https://api.allorigins.win/raw?url=${encodeURIComponent(FEED_URL)}`),
+  () => viaXmlProxy(`https://corsproxy.io/?url=${encodeURIComponent(FEED_URL)}`),
+];
+
 export function NewsWidget() {
   const [items, setItems] = useState<NewsItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const load = useCallback(() => {
+  const load = useCallback(async () => {
     setLoading(true);
     setError(null);
-    fetch(proxied(FEED_URL))
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.text();
-      })
-      .then((xml) => {
-        const doc = new DOMParser().parseFromString(xml, "text/xml");
-        const parsed = Array.from(doc.querySelectorAll("item"))
-          .slice(0, 6)
-          .map((item) => ({
-            title: item.querySelector("title")?.textContent ?? "",
-            link: item.querySelector("link")?.textContent ?? "",
-            source: item.querySelector("source")?.textContent ?? "",
-            pubDate: item.querySelector("pubDate")?.textContent ?? "",
-          }))
-          .filter((i) => i.title && i.link);
-        if (parsed.length === 0) throw new Error("empty");
-        setItems(parsed);
-      })
-      .catch(() => setError("ニュースを取得できませんでした。時間をおいて再試行してください。"))
-      .finally(() => setLoading(false));
+    for (const source of SOURCES) {
+      try {
+        const result = await source();
+        setItems(result);
+        setLoading(false);
+        return;
+      } catch {
+        // 次の経路を試す。
+      }
+    }
+    setError("ニュースを取得できませんでした。↻で再試行してください。");
+    setLoading(false);
   }, []);
 
   useEffect(() => {
-    load();
+    void load();
   }, [load]);
 
   return (
@@ -68,7 +119,7 @@ export function NewsWidget() {
       <div className="flex items-center justify-between">
         <h2 className="font-bold text-slate-900">📰 最新ニュース</h2>
         <button
-          onClick={load}
+          onClick={() => void load()}
           disabled={loading}
           className="rounded-lg px-2 py-1 text-sm text-slate-400 hover:bg-slate-100 hover:text-slate-600 disabled:opacity-50"
           title="更新"
@@ -77,11 +128,11 @@ export function NewsWidget() {
         </button>
       </div>
 
-      {error ? (
-        <p className="mt-4 text-sm text-slate-400">{error}</p>
-      ) : !items ? (
+      {loading && !items ? (
         <p className="mt-4 text-sm text-slate-400">読み込み中...</p>
-      ) : (
+      ) : error && !items ? (
+        <p className="mt-4 text-sm text-slate-400">{error}</p>
+      ) : items ? (
         <ul className="mt-3 divide-y divide-slate-100">
           {items.map((item, i) => (
             <li key={i}>
@@ -102,7 +153,7 @@ export function NewsWidget() {
             </li>
           ))}
         </ul>
-      )}
+      ) : null}
     </section>
   );
 }
