@@ -26,11 +26,11 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Atlas Lite — タスク管理",
   description:
-    "Googleカレンダー連携とAIアシストを備えた、ダーク基調のタスク管理サイト。各タスクに必要な知識・技術も管理できます。",
+    "Googleカレンダー連携とAIアシストを備えた、明るく見やすいタスク管理サイト。各タスクに必要な知識・技術も管理できます。",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0d0d11",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({
@@ -39,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja" className={`dark ${space.variable} ${mono.variable}`}>
+    <html lang="ja" className={`${space.variable} ${mono.variable}`}>
       <body>
         <GoogleProvider>
           <AnthropicProvider>
@@ -47,7 +47,7 @@ export default function RootLayout({
               <PwaRegister />
               <ReminderManager />
               <SiteHeader />
-              <main className="mx-auto min-h-[calc(100vh-8rem)] w-full max-w-6xl px-4 py-10 sm:px-6">
+              <main className="mx-auto min-h-[calc(100vh-8rem)] w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
                 {children}
               </main>
               <SiteFooter />

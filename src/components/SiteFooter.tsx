@@ -1,13 +1,10 @@
 export function SiteFooter() {
   return (
-    <footer className="border-t border-slate-800">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-8 sm:px-6">
-        <p className="font-mono text-sm font-semibold uppercase tracking-[0.2em] text-white">
-          Atlas Lite
-        </p>
-        <p className="max-w-xl text-sm leading-relaxed text-slate-500">
-          ダーク基調のタスク管理。Googleカレンダー連携、Claudeによる必要知識の提案・サブタスク分解、
-          進捗ダッシュボード、PWA、締切通知に対応。
+    <footer className="border-t border-slate-200 bg-white">
+      <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
+        <p className="font-semibold text-slate-800">Atlas Lite</p>
+        <p className="mt-1 max-w-xl text-sm leading-relaxed text-slate-500">
+          タスクと知識をひとつに。Googleカレンダー連携・AIアシスト・ガントチャート・進捗ダッシュボード・PWA対応。
         </p>
       </div>
     </footer>

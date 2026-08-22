@@ -20,92 +20,79 @@ export default function HomePage() {
     .slice(0, 4);
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-10">
       {/* ヒーロー */}
-      <section className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 px-6 py-16 sm:px-12 sm:py-24">
-        <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-brand-600/20 blur-3xl" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.04] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:32px_32px]" />
-        <div className="relative">
-          <p className="eyebrow">Atlas Lite — Task Operating System</p>
-          <h1 className="mt-6 max-w-3xl text-4xl font-bold leading-[1.04] tracking-tight text-white sm:text-6xl">
-            やるべきことと、その
-            <span className="text-brand-500">知識</span>を、
-            <br className="hidden sm:block" />
-            ひとつの場所で。
-          </h1>
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-400">
-            タスクを管理しながら、各タスクに必要なスキル・技術・参考資料も一緒に整理。
-            Googleカレンダー連携とAIアシストで、締切も知識も逃しません。
-          </p>
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Link
-              href="/tasks"
-              className="rounded-full bg-brand-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-500"
-            >
-              タスクを管理する →
-            </Link>
-            <Link
-              href="/tasks?new=1"
-              className="rounded-full border border-slate-700 px-6 py-3 text-sm font-semibold text-slate-200 transition hover:border-slate-500 hover:text-white"
-            >
-              + 新しいタスク
-            </Link>
-          </div>
+      <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-brand-500 to-sky-400 px-6 py-10 text-white shadow-lg sm:px-10 sm:py-14">
+        <h1 className="max-w-2xl text-2xl font-bold leading-snug sm:text-4xl">
+          やるべきことと、必要な知識を、
+          <br className="hidden sm:block" />
+          ひとつの場所で。
+        </h1>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/85 sm:text-base">
+          タスクごとにスキル・参考資料も整理。Googleカレンダー連携とAIアシストで、締切も知識も逃しません。
+        </p>
+        <div className="mt-7 flex flex-wrap gap-3">
+          <Link
+            href="/tasks"
+            className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-700 shadow-sm transition hover:bg-brand-50"
+          >
+            タスクを管理する
+          </Link>
+          <Link
+            href="/tasks?new=1"
+            className="rounded-full border border-white/50 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+          >
+            ＋ 新しいタスク
+          </Link>
         </div>
       </section>
 
       {/* サマリー */}
-      <section>
-        <p className="eyebrow mb-5">Overview</p>
-        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-slate-800 bg-slate-800 sm:grid-cols-4">
-          <StatCell label="未完了" value={ready ? open.length : "–"} accent="text-white" />
-          <StatCell label="進行中" value={ready ? inProgress.length : "–"} accent="text-brand-400" />
-          <StatCell label="完了" value={ready ? done.length : "–"} accent="text-emerald-400" />
-          <StatCell label="完了率" value={ready ? `${completionRate}%` : "–"} accent="text-white" />
-        </div>
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        <StatCard label="未完了" value={ready ? open.length : "–"} accent="text-slate-900" />
+        <StatCard label="進行中" value={ready ? inProgress.length : "–"} accent="text-blue-600" />
+        <StatCard label="完了" value={ready ? done.length : "–"} accent="text-emerald-600" />
+        <StatCard label="完了率" value={ready ? `${completionRate}%` : "–"} accent="text-brand-600" />
       </section>
 
       {/* 直近の締切 */}
       <section>
-        <div className="mb-5 flex items-end justify-between">
-          <p className="eyebrow">Upcoming Deadlines</p>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-slate-900 sm:text-xl">直近の締切</h2>
           <Link
             href="/tasks"
-            className="font-mono text-[11px] uppercase tracking-[0.15em] text-slate-500 transition hover:text-brand-400"
+            className="text-sm font-medium text-brand-600 hover:text-brand-700"
           >
-            View all →
+            すべて見る →
           </Link>
         </div>
         {!ready ? (
           <p className="text-sm text-slate-500">読み込み中...</p>
         ) : upcoming.length === 0 ? (
-          <p className="card p-8 text-center text-sm text-slate-500">
+          <p className="card border-dashed p-8 text-center text-sm text-slate-500">
             締切のあるタスクはありません。
           </p>
         ) : (
-          <ul className="divide-y divide-slate-800 overflow-hidden rounded-xl border border-slate-800">
+          <ul className="space-y-3">
             {upcoming.map((task) => {
               const d = daysUntil(task.dueDate);
               return (
-                <li
-                  key={task.id}
-                  className="flex items-center justify-between gap-4 bg-slate-900 p-4 transition hover:bg-slate-800/60"
-                >
+                <li key={task.id} className="card flex items-center justify-between gap-3 p-4">
                   <div className="min-w-0">
-                    <p className="truncate font-medium text-white">{task.title}</p>
-                    <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                    <p className="truncate font-semibold text-slate-900">{task.title}</p>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                       <StatusBadge status={task.status} />
                       <PriorityBadge priority={task.priority} />
                     </div>
                   </div>
                   <div className="shrink-0 text-right">
-                    <p className="font-mono text-sm text-slate-200">
+                    <p className="text-sm font-semibold text-slate-800">
                       {formatJaDate(task.dueDate)}
                     </p>
                     {d !== null && (
                       <p
-                        className={`font-mono text-xs ${
-                          d < 0 ? "text-rose-400" : d <= 2 ? "text-amber-400" : "text-slate-500"
+                        className={`mt-0.5 text-xs font-medium ${
+                          d < 0 ? "text-rose-600" : d <= 2 ? "text-amber-600" : "text-slate-400"
                         }`}
                       >
                         {d < 0 ? `${-d}日超過` : d === 0 ? "今日" : `あと${d}日`}
@@ -119,24 +106,27 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* 特徴 */}
+      {/* できること */}
       <section>
-        <p className="eyebrow mb-5">Capabilities</p>
-        <div className="grid gap-px overflow-hidden rounded-xl border border-slate-800 bg-slate-800 sm:grid-cols-3">
-          <FeatureCell
-            index="01"
+        <h2 className="mb-4 text-lg font-bold text-slate-900 sm:text-xl">できること</h2>
+        <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
+          <FeatureCard
+            emoji="✅"
             title="タスク管理"
-            body="状態・優先度・締切で整理。リストとカンバンを切替。"
+            body="大項目・小項目で整理。リスト / カンバン / ガントを切替。"
+            href="/tasks"
           />
-          <FeatureCell
-            index="02"
-            title="必要な知識・技術 / AI"
-            body="各タスクにスキルや資料を紐付け。AIが提案・分解。"
+          <FeatureCard
+            emoji="🧠"
+            title="知識・AIアシスト"
+            body="必要なスキルや資料をタスクに紐付け。AIが提案・分解。"
+            href="/knowledge"
           />
-          <FeatureCell
-            index="03"
+          <FeatureCard
+            emoji="📅"
             title="カレンダー連携"
-            body="締切をGoogleカレンダーへ。予定と並べて表示。"
+            body="締切をGoogleカレンダーへ登録。予定と並べて確認。"
+            href="/calendar"
           />
         </div>
       </section>
@@ -144,7 +134,7 @@ export default function HomePage() {
   );
 }
 
-function StatCell({
+function StatCard({
   label,
   value,
   accent,
@@ -154,27 +144,29 @@ function StatCell({
   accent: string;
 }) {
   return (
-    <div className="bg-slate-900 p-5">
-      <p className="eyebrow">{label}</p>
-      <p className={`mt-2 text-3xl font-bold tracking-tight ${accent}`}>{value}</p>
+    <div className="card p-4 sm:p-5">
+      <p className="text-sm text-slate-500">{label}</p>
+      <p className={`mt-1 text-3xl font-bold tracking-tight ${accent}`}>{value}</p>
     </div>
   );
 }
 
-function FeatureCell({
-  index,
+function FeatureCard({
+  emoji,
   title,
   body,
+  href,
 }: {
-  index: string;
+  emoji: string;
   title: string;
   body: string;
+  href: string;
 }) {
   return (
-    <div className="bg-slate-900 p-6">
-      <span className="font-mono text-xs text-brand-500">{index}</span>
-      <h3 className="mt-3 font-semibold text-white">{title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-slate-400">{body}</p>
-    </div>
+    <Link href={href} className="card block p-5 transition hover:border-brand-200 hover:shadow-md">
+      <span className="text-2xl">{emoji}</span>
+      <h3 className="mt-2 font-bold text-slate-900">{title}</h3>
+      <p className="mt-1 text-sm leading-relaxed text-slate-500">{body}</p>
+    </Link>
   );
 }

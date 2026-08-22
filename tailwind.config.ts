@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -27,32 +26,18 @@ const config: Config = {
         ],
       },
       colors: {
-        // エレクトリックブルーのアクセント（白文字が乗る前提）。
+        // 明るく親しみやすいブルーのアクセント。
         brand: {
-          50: "#eef1ff",
-          100: "#dee4ff",
-          200: "#c3ccff",
-          300: "#9aaaff",
-          400: "#6c82ff",
-          500: "#3d5aff",
-          600: "#2f4bff",
-          700: "#1f37e6",
-          800: "#1a2bb4",
-          900: "#1b2a8f",
-        },
-        // クールなインクのニュートラル（slate を上書き）。
-        slate: {
-          50: "#f7f7f8",
-          100: "#ededf1",
-          200: "#d8d8df",
-          300: "#b7b7c2",
-          400: "#85858f",
-          500: "#65656f",
-          600: "#46464e",
-          700: "#2a2a31",
-          800: "#17171c",
-          900: "#0d0d11",
-          950: "#070709",
+          50: "#eff6ff",
+          100: "#dbeafe",
+          200: "#bfdbfe",
+          300: "#93c5fd",
+          400: "#60a5fa",
+          500: "#3b82f6",
+          600: "#2563eb",
+          700: "#1d4ed8",
+          800: "#1e40af",
+          900: "#1e3a8a",
         },
       },
     },

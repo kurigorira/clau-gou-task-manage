@@ -49,9 +49,9 @@ export function DataManager() {
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm">
-      <h2 className="font-semibold text-slate-900 dark:text-slate-100">データの管理</h2>
-      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 className="font-semibold text-slate-900">データの管理</h2>
+      <p className="mt-1 text-sm text-slate-500">
         タスクはこの端末のブラウザに保存されます。エクスポートでバックアップし、別の端末で
         インポートすると移行できます。
       </p>
@@ -65,13 +65,13 @@ export function DataManager() {
         </button>
         <button
           onClick={() => fileRef.current?.click()}
-          className="rounded-lg border border-slate-300 dark:border-slate-600 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
+          className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
         >
           インポート
         </button>
         <button
           onClick={handleClear}
-          className="rounded-lg px-4 py-2 text-sm font-medium text-rose-400 hover:bg-rose-500/10"
+          className="rounded-lg px-4 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50"
         >
           全タスクを削除
         </button>
@@ -87,7 +87,7 @@ export function DataManager() {
       {message && (
         <p
           className={`mt-3 text-sm ${
-            message.kind === "ok" ? "text-emerald-400" : "text-rose-400"
+            message.kind === "ok" ? "text-emerald-600" : "text-rose-600"
           }`}
         >
           {message.text}

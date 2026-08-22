@@ -90,8 +90,8 @@ function TasksPageInner() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">タスク</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <h1 className="text-2xl font-bold text-slate-900">タスク</h1>
+          <p className="text-sm text-slate-500">
             {!ready
               ? "読み込み中..."
               : hasFilter
@@ -100,7 +100,7 @@ function TasksPageInner() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-0.5">
+          <div className="flex rounded-lg border border-slate-200 bg-white p-0.5">
             <ViewButton active={view === "list"} onClick={() => setView("list")}>
               リスト
             </ViewButton>
@@ -110,9 +110,9 @@ function TasksPageInner() {
           </div>
           <button
             onClick={() => setModal({ type: "create" })}
-            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700"
+            className="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700"
           >
-            + タスク追加
+            ＋ タスク追加
           </button>
         </div>
       </div>
@@ -126,37 +126,39 @@ function TasksPageInner() {
             placeholder="タイトル・スキル・タグで検索..."
             className="input sm:flex-1"
           />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as TaskStatus | "all")}
-            className="input sm:w-40"
-          >
-            <option value="all">状態: すべて</option>
-            <option value="todo">未着手</option>
-            <option value="in-progress">進行中</option>
-            <option value="done">完了</option>
-          </select>
-          <select
-            value={priorityFilter}
-            onChange={(e) => setPriorityFilter(e.target.value as TaskPriority | "all")}
-            className="input sm:w-40"
-          >
-            <option value="all">優先度: すべて</option>
-            {(["high", "medium", "low"] as TaskPriority[]).map((p) => (
-              <option key={p} value={p}>
-                {PRIORITY_LABEL[p]}
-              </option>
-            ))}
-          </select>
+          <div className="grid grid-cols-2 gap-2 sm:flex">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as TaskStatus | "all")}
+              className="input sm:w-40"
+            >
+              <option value="all">状態: すべて</option>
+              <option value="todo">未着手</option>
+              <option value="in-progress">進行中</option>
+              <option value="done">完了</option>
+            </select>
+            <select
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value as TaskPriority | "all")}
+              className="input sm:w-40"
+            >
+              <option value="all">優先度: すべて</option>
+              {(["high", "medium", "low"] as TaskPriority[]).map((p) => (
+                <option key={p} value={p}>
+                  {PRIORITY_LABEL[p]}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       )}
 
       {!ready ? (
-        <p className="text-sm text-slate-500 dark:text-slate-400">読み込み中...</p>
+        <p className="text-sm text-slate-500">読み込み中...</p>
       ) : tasks.length === 0 ? (
         <EmptyState onCreate={() => setModal({ type: "create" })} />
       ) : filtered.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 p-12 text-center text-sm text-slate-500 dark:text-slate-400">
+        <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-sm text-slate-500">
           条件に一致するタスクがありません。
         </p>
       ) : view === "list" ? (
@@ -217,7 +219,7 @@ function ViewButton({
     <button
       onClick={onClick}
       className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
-        active ? "bg-brand-600 text-white" : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+        active ? "bg-brand-600 text-white" : "text-slate-600 hover:bg-slate-100"
       }`}
     >
       {children}
@@ -232,41 +234,75 @@ function ListView({
   tasks: Task[];
   onSelect: (id: string) => void;
 }) {
+  // 表示対象を「大項目 → その小項目」の順にグループ化する。
+  const ids = new Set(tasks.map((t) => t.id));
+  const parents = tasks.filter((t) => !t.parentId || !ids.has(t.parentId));
+  const childrenOf = (id: string) => tasks.filter((t) => t.parentId === id);
+
   return (
-    <ul className="space-y-3">
-      {tasks.map((task) => (
-        <li key={task.id}>
-          <button
-            onClick={() => onSelect(task.id)}
-            className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 text-left shadow-sm transition hover:border-brand-300 hover:shadow"
+    <div className="space-y-3">
+      {parents.map((parent) => {
+        const children = childrenOf(parent.id);
+        return (
+          <div key={parent.id} className="card overflow-hidden">
+            <TaskRow task={parent} onSelect={onSelect} />
+            {children.length > 0 && (
+              <ul className="border-t border-slate-100 bg-slate-50/60">
+                {children.map((child) => (
+                  <li key={child.id} className="border-b border-slate-100 last:border-b-0">
+                    <TaskRow task={child} onSelect={onSelect} isChild />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function TaskRow({
+  task,
+  onSelect,
+  isChild,
+}: {
+  task: Task;
+  onSelect: (id: string) => void;
+  isChild?: boolean;
+}) {
+  return (
+    <button
+      onClick={() => onSelect(task.id)}
+      className={`w-full text-left transition hover:bg-brand-50/60 ${
+        isChild ? "py-3 pl-10 pr-4" : "p-4"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p
+            className={`${
+              isChild ? "text-sm font-medium text-slate-700" : "font-semibold text-slate-900"
+            } ${task.status === "done" ? "line-through opacity-60" : ""}`}
           >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="font-medium text-slate-900 dark:text-slate-100">{task.title}</p>
-                {task.description && (
-                  <p className="mt-0.5 truncate text-sm text-slate-500 dark:text-slate-400">
-                    {task.description}
-                  </p>
-                )}
-              </div>
-              <DueChip due={task.dueDate} />
-            </div>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <StatusBadge status={task.status} />
-              <PriorityBadge priority={task.priority} />
-              {task.requiredSkills.slice(0, 3).map((s) => (
-                <SkillTag key={s}>{s}</SkillTag>
-              ))}
-              {task.requiredSkills.length > 3 && (
-                <span className="text-xs text-slate-400 dark:text-slate-500">
-                  +{task.requiredSkills.length - 3}
-                </span>
-              )}
-            </div>
-          </button>
-        </li>
-      ))}
-    </ul>
+            {isChild && <span className="mr-1.5 text-slate-300">└</span>}
+            {task.title}
+          </p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <StatusBadge status={task.status} />
+            <PriorityBadge priority={task.priority} />
+            {!isChild &&
+              task.requiredSkills.slice(0, 2).map((s) => <SkillTag key={s}>{s}</SkillTag>)}
+            {!isChild && task.requiredSkills.length > 2 && (
+              <span className="text-xs text-slate-400">
+                +{task.requiredSkills.length - 2}
+              </span>
+            )}
+          </div>
+        </div>
+        <DueChip due={task.dueDate} />
+      </div>
+    </button>
   );
 }
 
@@ -284,22 +320,22 @@ function BoardView({
       {STATUS_ORDER.map((status) => {
         const column = tasks.filter((t) => t.status === status);
         return (
-          <div key={status} className="rounded-xl bg-slate-100/70 dark:bg-slate-800/60 p-3">
+          <div key={status} className="rounded-xl bg-slate-100/70 p-3">
             <div className="mb-3 flex items-center justify-between px-1">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+              <h3 className="text-sm font-semibold text-slate-700">
                 {STATUS_LABEL[status]}
               </h3>
-              <span className="text-xs text-slate-400 dark:text-slate-500">{column.length}</span>
+              <span className="text-xs text-slate-400">{column.length}</span>
             </div>
             <div className="space-y-2">
               {column.map((task) => (
                 <div
                   key={task.id}
-                  className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 shadow-sm"
+                  className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
                 >
                   <button
                     onClick={() => onSelect(task.id)}
-                    className="text-left text-sm font-medium text-slate-900 dark:text-slate-100 hover:text-brand-300"
+                    className="text-left text-sm font-medium text-slate-900 hover:text-brand-700"
                   >
                     {task.title}
                   </button>
@@ -312,7 +348,7 @@ function BoardView({
                       <button
                         key={s}
                         onClick={() => onMove(task.id, s)}
-                        className="rounded bg-slate-100 dark:bg-slate-700 px-2 py-1 text-xs text-slate-600 dark:text-slate-300 hover:bg-brand-500/20 hover:text-brand-300"
+                        className="rounded bg-slate-100 px-2 py-1 text-xs text-slate-600 hover:bg-brand-100 hover:text-brand-700"
                       >
                         → {STATUS_LABEL[s]}
                       </button>
@@ -321,7 +357,7 @@ function BoardView({
                 </div>
               ))}
               {column.length === 0 && (
-                <p className="px-1 py-4 text-center text-xs text-slate-400 dark:text-slate-500">なし</p>
+                <p className="px-1 py-4 text-center text-xs text-slate-400">なし</p>
               )}
             </div>
           </div>
@@ -336,12 +372,12 @@ function DueChip({ due, compact }: { due: string | null; compact?: boolean }) {
   const d = daysUntil(due);
   const color =
     d === null
-      ? "text-slate-500 dark:text-slate-400"
+      ? "text-slate-500"
       : d < 0
-        ? "text-rose-400"
+        ? "text-rose-600"
         : d <= 2
           ? "text-amber-600"
-          : "text-slate-500 dark:text-slate-400";
+          : "text-slate-500";
   return (
     <span className={`shrink-0 text-xs font-medium ${color}`}>
       {compact ? formatJaDate(due) : `📅 ${formatJaDate(due)}`}
@@ -351,8 +387,8 @@ function DueChip({ due, compact }: { due: string | null; compact?: boolean }) {
 
 function EmptyState({ onCreate }: { onCreate: () => void }) {
   return (
-    <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 p-12 text-center">
-      <p className="text-slate-600 dark:text-slate-300">まだタスクがありません。</p>
+    <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
+      <p className="text-slate-600">まだタスクがありません。</p>
       <button
         onClick={onCreate}
         className="mt-4 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700"
@@ -365,7 +401,7 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
 
 export default function TasksPage() {
   return (
-    <Suspense fallback={<p className="text-sm text-slate-500 dark:text-slate-400">読み込み中...</p>}>
+    <Suspense fallback={<p className="text-sm text-slate-500">読み込み中...</p>}>
       <TasksPageInner />
     </Suspense>
   );

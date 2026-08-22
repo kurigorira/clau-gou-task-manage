@@ -228,7 +228,7 @@ export function TaskForm({
               <button
                 type="button"
                 onClick={() => setLinks((prev) => prev.filter((_, j) => j !== i))}
-                className="rounded-md px-2 text-slate-400 dark:text-slate-500 hover:text-rose-400"
+                className="rounded-md px-2 text-slate-400 hover:text-rose-600"
                 aria-label="削除"
               >
                 ✕
@@ -238,7 +238,7 @@ export function TaskForm({
           <button
             type="button"
             onClick={() => setLinks((prev) => [...prev, { label: "", url: "" }])}
-            className="text-sm font-medium text-brand-400 hover:text-brand-300"
+            className="text-sm font-medium text-brand-600 hover:text-brand-700"
           >
             + リンクを追加
           </button>
@@ -259,7 +259,7 @@ export function TaskForm({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+          className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
         >
           キャンセル
         </button>
@@ -285,7 +285,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
+      <span className="mb-1 block text-sm font-medium text-slate-700">
         {label}
         {required && <span className="ml-0.5 text-rose-500">*</span>}
       </span>

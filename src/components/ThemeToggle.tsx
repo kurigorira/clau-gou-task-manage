@@ -29,7 +29,7 @@ export function ThemeToggle() {
       onClick={toggle}
       aria-label={dark ? "ライトモードに切替" : "ダークモードに切替"}
       title={dark ? "ライトモード" : "ダークモード"}
-      className="ml-1 flex h-8 w-8 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
+      className="ml-1 flex h-8 w-8 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-slate-100"
     >
       {dark ? "☀️" : "🌙"}
     </button>

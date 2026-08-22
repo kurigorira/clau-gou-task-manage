@@ -25,34 +25,34 @@ export function TaskDetail({
       <div className="flex flex-wrap items-center gap-2">
         <StatusBadge status={task.status} />
         <PriorityBadge priority={task.priority} />
-        <span className="text-sm text-slate-500 dark:text-slate-400">
+        <span className="text-sm text-slate-500">
           {task.startDate ? `${formatJaDate(task.startDate)} 〜 ` : ""}
           {formatJaDate(task.dueDate)}
         </span>
         {task.recurrence !== "none" && (
-          <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-700 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:text-slate-300">
+          <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
             🔁 {RECURRENCE_LABEL[task.recurrence]}
           </span>
         )}
         {parent && (
-          <span className="inline-flex items-center rounded-full border border-slate-700 px-2.5 py-0.5 text-xs text-slate-400">
+          <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
             大項目: {parent.title}
           </span>
         )}
       </div>
 
       {task.description && (
-        <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">{task.description}</p>
+        <p className="whitespace-pre-wrap text-sm text-slate-700">{task.description}</p>
       )}
 
       {children.length > 0 && (
-        <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-          <h3 className="text-sm font-semibold text-slate-200">
+        <section className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <h3 className="text-sm font-semibold text-slate-700">
             小項目（{children.length}）
           </h3>
-          <ul className="mt-2 space-y-1">
+          <ul className="mt-2 space-y-1.5">
             {children.map((c) => (
-              <li key={c.id} className="flex items-center gap-2 text-sm text-slate-300">
+              <li key={c.id} className="flex items-center gap-2 text-sm text-slate-600">
                 <StatusBadge status={c.status} />
                 <span className="truncate">{c.title}</span>
               </li>
@@ -65,8 +65,8 @@ export function TaskDetail({
       <CalendarSync task={task} />
 
       {/* ★必要な知識・技術 */}
-      <section className="rounded-xl border border-brand-500/30 bg-brand-500/10 p-4">
-        <h3 className="text-sm font-semibold text-brand-300">必要な知識・技術</h3>
+      <section className="rounded-xl border border-brand-200 bg-brand-50 p-4">
+        <h3 className="text-sm font-semibold text-brand-700">必要な知識・技術</h3>
         {task.requiredSkills.length > 0 ? (
           <div className="mt-2 flex flex-wrap gap-1.5">
             {task.requiredSkills.map((skill) => (
@@ -74,13 +74,13 @@ export function TaskDetail({
             ))}
           </div>
         ) : (
-          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">未設定</p>
+          <p className="mt-2 text-sm text-slate-500">未設定</p>
         )}
 
         {task.knowledgeNotes && (
           <div className="mt-3">
-            <p className="text-xs font-medium text-brand-300">前提知識・メモ</p>
-            <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">
+            <p className="text-xs font-medium text-brand-700">前提知識・メモ</p>
+            <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">
               {task.knowledgeNotes}
             </p>
           </div>
@@ -88,7 +88,7 @@ export function TaskDetail({
 
         {task.referenceLinks.length > 0 && (
           <div className="mt-3">
-            <p className="text-xs font-medium text-brand-300">参考資料</p>
+            <p className="text-xs font-medium text-brand-700">参考資料</p>
             <ul className="mt-1 space-y-1">
               {task.referenceLinks.map((link, i) => (
                 <li key={i}>
@@ -96,7 +96,7 @@ export function TaskDetail({
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-brand-400 underline-offset-2 hover:underline"
+                    className="text-sm text-brand-600 underline-offset-2 hover:underline"
                   >
                     {link.label || link.url} ↗
                   </a>
@@ -115,7 +115,7 @@ export function TaskDetail({
           {task.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-md bg-slate-100 dark:bg-slate-700 px-2 py-1 text-xs text-slate-600 dark:text-slate-300"
+              className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600"
             >
               #{tag}
             </span>
@@ -123,10 +123,10 @@ export function TaskDetail({
         </div>
       )}
 
-      <div className="flex justify-end gap-2 border-t border-slate-100 dark:border-slate-700 pt-4">
+      <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
         <button
           onClick={onDelete}
-          className="rounded-lg px-4 py-2 text-sm font-medium text-rose-400 hover:bg-rose-500/10"
+          className="rounded-lg px-4 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50"
         >
           削除
         </button>

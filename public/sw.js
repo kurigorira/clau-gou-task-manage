@@ -1,6 +1,6 @@
 // Atlas Lite の最小サービスワーカー（オフライン対応）。
 // ナビゲーションはネットワーク優先、失敗時はキャッシュにフォールバックする。
-const CACHE = "taskful-v1";
+const CACHE = "atlas-v2";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();

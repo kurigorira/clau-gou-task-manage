@@ -3,37 +3,39 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  @apply bg-slate-950 font-sans text-slate-200 antialiased;
+  @apply bg-slate-50 font-sans text-slate-800 antialiased;
 }
 
-/* 選択範囲をアクセント色に。 */
 ::selection {
-  background: #2f4bff;
+  background: #2563eb;
   color: #fff;
 }
 
 @layer components {
+  /* 入力欄。スマホでも押しやすい高さにする。 */
   .input {
-    @apply w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 shadow-none outline-none transition placeholder:text-slate-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30;
+    @apply w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100;
   }
 
-  /* モノスペースの小見出し（エディトリアルなラベル）。 */
+  /* 小さなセクションラベル。 */
   .eyebrow {
-    @apply font-mono text-[11px] uppercase tracking-[0.25em] text-slate-400;
+    @apply text-xs font-semibold uppercase tracking-wider text-slate-400;
   }
 
   /* 標準カード。 */
   .card {
-    @apply rounded-xl border border-slate-800 bg-slate-900;
+    @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
   }
-}
 
-/* 細いスクロールバー。 */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #2a2a31 transparent;
+  /* スクロールバーを隠す（スマホ横スクロールナビ用）。 */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
