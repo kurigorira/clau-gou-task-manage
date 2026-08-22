@@ -9,6 +9,7 @@ import {
   setNotifyEnabled,
 } from "@/lib/notify";
 import { DataManager } from "@/components/DataManager";
+import { syncWithDrive, lastSyncedAt } from "@/lib/driveSync";
 
 export default function SettingsPage() {
   const {
@@ -18,6 +19,7 @@ export default function SettingsPage() {
     status,
     error,
     isConnected,
+    accessToken,
     connect,
     disconnect,
   } = useGoogle();
@@ -117,6 +119,9 @@ export default function SettingsPage() {
           </p>
         )}
       </section>
+
+      {/* 端末間同期 */}
+      <SyncSection isConnected={isConnected} accessToken={accessToken} />
 
       {/* Client ID 設定 */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -293,5 +298,75 @@ export default function SettingsPage() {
         </p>
       </section>
     </div>
+  );
+}
+
+/** 端末間同期（Google Drive）の状態表示と手動同期。 */
+function SyncSection({
+  isConnected,
+  accessToken,
+}: {
+  isConnected: boolean;
+  accessToken: string | null;
+}) {
+  const [message, setMessage] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [last, setLast] = useState(0);
+
+  useEffect(() => {
+    setLast(lastSyncedAt());
+  }, []);
+
+  const runSync = async () => {
+    if (!accessToken) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      const result = await syncWithDrive(accessToken);
+      setLast(lastSyncedAt());
+      if (result.action === "downloaded") {
+        setMessage("他の端末のデータを取り込みました。画面を更新します...");
+        setTimeout(() => window.location.reload(), 800);
+      } else if (result.action === "uploaded") {
+        setMessage("この端末のデータをDriveに保存しました。");
+      } else {
+        setMessage("すでに最新の状態です。");
+      }
+    } catch {
+      setMessage(
+        "同期に失敗しました。Google Cloud で Drive API が有効か確認し、一度切断して再接続してください。",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="rounded-2xl border border-emerald-200 bg-white p-6 shadow-sm">
+      <h2 className="font-semibold text-slate-900">端末間同期（Google Drive）</h2>
+      <p className="mt-1 text-sm text-slate-500">
+        タスク・行事予定・お気に入りを、あなたのGoogleドライブの非公開領域に保存し、
+        同じアカウントで接続した端末間で同じ状態にします。接続時に自動同期され、
+        新しい方のデータが優先されます。
+      </p>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <button
+          onClick={() => void runSync()}
+          disabled={!isConnected || busy}
+          className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {busy ? "同期中..." : "今すぐ同期"}
+        </button>
+        {!isConnected && (
+          <span className="text-sm text-slate-400">上の「Googleと接続する」を先に実行してください</span>
+        )}
+        {last > 0 && (
+          <span className="text-xs text-slate-400">
+            最終同期: {new Date(last).toLocaleString("ja-JP")}
+          </span>
+        )}
+      </div>
+      {message && <p className="mt-3 text-sm text-emerald-600">{message}</p>}
+    </section>
   );
 }

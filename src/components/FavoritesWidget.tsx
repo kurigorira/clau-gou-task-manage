@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { touchLocalData } from "@/lib/driveSync";
 
 interface Favorite {
   id: string;
@@ -58,6 +59,7 @@ export function FavoritesWidget() {
     if (!u) return;
     if (!/^https?:\/\//.test(u)) u = `https://${u}`;
     setItems((prev) => [...prev, { id: createId(), label: label.trim(), url: u }]);
+    touchLocalData();
     setLabel("");
     setUrl("");
   };
@@ -102,7 +104,10 @@ export function FavoritesWidget() {
               </a>
               {editing && (
                 <button
-                  onClick={() => setItems((prev) => prev.filter((x) => x.id !== f.id))}
+                  onClick={() => {
+                    setItems((prev) => prev.filter((x) => x.id !== f.id));
+                    touchLocalData();
+                  }}
                   className="ml-0.5 rounded-full px-1.5 text-slate-400 hover:text-rose-600"
                   aria-label="削除"
                 >

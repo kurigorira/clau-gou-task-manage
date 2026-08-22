@@ -14,6 +14,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { touchLocalData } from "./driveSync";
 
 export type EventCategory = "company" | "private";
 
@@ -77,14 +78,17 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
 
   const addEvent = useCallback<EventsContextValue["addEvent"]>((e) => {
     setEvents((prev) => [...prev, { ...e, id: createId() }]);
+    touchLocalData();
   }, []);
 
   const deleteEvent = useCallback<EventsContextValue["deleteEvent"]>((id) => {
     setEvents((prev) => prev.filter((e) => e.id !== id));
+    touchLocalData();
   }, []);
 
   const clearCategory = useCallback<EventsContextValue["clearCategory"]>((c) => {
     setEvents((prev) => prev.filter((e) => e.category !== c));
+    touchLocalData();
   }, []);
 
   const importEvents = useCallback<EventsContextValue["importEvents"]>(
@@ -101,7 +105,10 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         seen.add(key);
         fresh.push({ ...item, id: createId() });
       }
-      if (fresh.length > 0) setEvents((prev) => [...prev, ...fresh]);
+      if (fresh.length > 0) {
+        setEvents((prev) => [...prev, ...fresh]);
+        touchLocalData();
+      }
       return { added: fresh.length, skipped };
     },
     [events],

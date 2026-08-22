@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import type { Task } from "./types";
+import { touchLocalData } from "./driveSync";
 
 const STORAGE_KEY = "clau-gou-tasks-v1";
 
@@ -161,10 +162,12 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       createdAt: new Date().toISOString().slice(0, 10),
     };
     setTasks((prev) => [newTask, ...prev]);
+    touchLocalData();
     return newTask;
   }, []);
 
   const updateTask = useCallback<TaskContextValue["updateTask"]>((id, patch) => {
+    touchLocalData();
     setTasks((prev) => {
       const next = prev.map((t) => (t.id === id ? { ...t, ...patch } : t));
       // 繰り返しタスクが「完了」になったら、次回分を自動生成する。
@@ -196,6 +199,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const deleteTask = useCallback<TaskContextValue["deleteTask"]>((id) => {
+    touchLocalData();
     // 削除するタスクの子（小項目）は親を外して大項目化し、データを失わないようにする。
     setTasks((prev) =>
       prev
@@ -211,6 +215,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
 
   const replaceAll = useCallback<TaskContextValue["replaceAll"]>((next) => {
     setTasks(next);
+    touchLocalData();
   }, []);
 
   const value = useMemo<TaskContextValue>(
