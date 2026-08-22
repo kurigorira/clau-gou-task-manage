@@ -19,7 +19,9 @@ import {
  */
 
 const GIS_SRC = "https://accounts.google.com/gsi/client";
-const CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar.events";
+// カレンダー編集 + ドライブ閲覧（ホームの「最近のファイル」表示用）。
+const CALENDAR_SCOPE =
+  "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.readonly";
 const CLIENT_ID_KEY = "clau-gou-google-client-id";
 
 // GIS の最小型定義（@types を増やさず必要分だけ宣言）。

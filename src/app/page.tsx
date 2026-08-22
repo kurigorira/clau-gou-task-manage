@@ -4,6 +4,10 @@ import Link from "next/link";
 import { useTasks } from "@/lib/store";
 import { formatJaDate, daysUntil } from "@/lib/date";
 import { StatusBadge, PriorityBadge } from "@/components/badges";
+import { WeatherWidget } from "@/components/WeatherWidget";
+import { NewsWidget } from "@/components/NewsWidget";
+import { DriveWidget } from "@/components/DriveWidget";
+import { FavoritesWidget } from "@/components/FavoritesWidget";
 
 export default function HomePage() {
   const { tasks, ready } = useTasks();
@@ -104,6 +108,14 @@ export default function HomePage() {
             })}
           </ul>
         )}
+      </section>
+
+      {/* ウィジェット（天気・ニュース・ドライブ・お気に入り） */}
+      <section className="grid gap-3 sm:gap-4 lg:grid-cols-2">
+        <WeatherWidget />
+        <NewsWidget />
+        <DriveWidget />
+        <FavoritesWidget />
       </section>
 
       {/* できること */}

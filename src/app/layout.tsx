@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { TaskProvider } from "@/lib/store";
+import { EventProvider } from "@/lib/events";
 import { GoogleProvider } from "@/lib/google";
 import { AnthropicProvider } from "@/lib/anthropic";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -44,13 +45,15 @@ export default function RootLayout({
         <GoogleProvider>
           <AnthropicProvider>
             <TaskProvider>
-              <PwaRegister />
-              <ReminderManager />
-              <SiteHeader />
-              <main className="mx-auto min-h-[calc(100vh-8rem)] w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
-                {children}
-              </main>
-              <SiteFooter />
+              <EventProvider>
+                <PwaRegister />
+                <ReminderManager />
+                <SiteHeader />
+                <main className="mx-auto min-h-[calc(100vh-8rem)] w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
+                  {children}
+                </main>
+                <SiteFooter />
+              </EventProvider>
             </TaskProvider>
           </AnthropicProvider>
         </GoogleProvider>
