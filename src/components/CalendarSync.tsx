@@ -57,7 +57,7 @@ export function CalendarSync({ task }: { task: Task }) {
     return (
       <div className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
         <Link href="/settings" className="font-medium text-brand-600 hover:underline">
-          設定でGoogle連携
+          Googleにログイン
         </Link>
         すると、締切をカレンダーに登録できます。
       </div>

@@ -67,10 +67,10 @@ export function DriveWidget() {
         const code = e instanceof Error ? e.message : "";
         if (code === "403") {
           setError(
-            "ドライブにアクセスできません。Google Cloud で「Google Drive API」を有効化し、設定ページで一度切断してから再接続してください。",
+            "ドライブにアクセスできません。Google Cloud で「Google Drive API」を有効化し、設定ページで一度ログアウトしてから再ログインしてください。",
           );
         } else if (code === "401") {
-          setError("接続の有効期限が切れました。設定ページから再接続してください。");
+          setError("ログインの有効期限が切れました。ヘッダーの「ログイン」から再ログインしてください。");
         } else {
           setError("ファイル一覧を取得できませんでした。");
         }
@@ -97,7 +97,7 @@ export function DriveWidget() {
       {!isConnected ? (
         <p className="mt-3 text-sm text-slate-400">
           <Link href="/settings" className="font-medium text-brand-600 hover:underline">
-            設定でGoogle連携
+            Googleにログイン
           </Link>
           すると、最近のファイルがここに表示されます。
         </p>

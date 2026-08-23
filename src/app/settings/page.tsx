@@ -20,6 +20,7 @@ export default function SettingsPage() {
     error,
     isConnected,
     accessToken,
+    email,
     connect,
     disconnect,
   } = useGoogle();
@@ -60,7 +61,7 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-2xl font-bold text-slate-900">設定</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Googleカレンダー連携の設定を行います。
+          Googleログイン・AIアシスト・通知・データ管理の設定を行います。
         </p>
       </div>
 
@@ -68,11 +69,11 @@ export default function SettingsPage() {
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-semibold text-slate-900">Googleカレンダー連携</h2>
+            <h2 className="font-semibold text-slate-900">Googleログイン</h2>
             <p className="mt-1 text-sm text-slate-500">
               {isConnected
-                ? "接続済み。タスクの締切をカレンダーに登録できます。"
-                : "未接続です。Client ID を設定して接続してください。"}
+                ? `ログイン中${email ? `: ${email}` : ""}。カレンダー登録・ドライブ表示・端末間同期が使えます。`
+                : "未ログインです。下の Client ID を設定してログインしてください。"}
             </p>
           </div>
           <span
@@ -85,7 +86,7 @@ export default function SettingsPage() {
                 isConnected ? "bg-emerald-500" : "bg-slate-400"
               }`}
             />
-            {isConnected ? "接続済み" : "未接続"}
+            {isConnected ? "ログイン中" : "未ログイン"}
           </span>
         </div>
 
@@ -95,7 +96,7 @@ export default function SettingsPage() {
               onClick={disconnect}
               className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
-              切断する
+              ログアウト
             </button>
           ) : (
             <button
@@ -103,7 +104,7 @@ export default function SettingsPage() {
               disabled={!clientId || !scriptReady || status === "connecting"}
               className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {status === "connecting" ? "接続中..." : "Googleと接続する"}
+              {status === "connecting" ? "ログイン中..." : "Googleでログイン"}
             </button>
           )}
           {!scriptReady && (
@@ -293,8 +294,9 @@ export default function SettingsPage() {
           <li>発行された Client ID を上のフォームに貼り付けて保存 → 「Googleと接続する」</li>
         </ol>
         <p className="mt-3 text-xs text-slate-500">
-          ※ アクセストークンはブラウザのメモリ上のみで保持され、サーバーには送信されません。
-          ページを再読み込みすると再接続が必要です。
+          ※ ログイン情報はこの端末のブラウザ内にのみ保存され、サーバーには送信されません。
+          ログインは約1時間で自動的に切れます。切れたときはヘッダーの「ログイン」から
+          ワンタップで再ログインできます（2回目以降は確認画面なしですぐ完了します）。
         </p>
       </section>
     </div>
@@ -346,7 +348,7 @@ function SyncSection({
       <h2 className="font-semibold text-slate-900">端末間同期（Google Drive）</h2>
       <p className="mt-1 text-sm text-slate-500">
         タスク・行事予定・お気に入りを、あなたのGoogleドライブの非公開領域に保存し、
-        同じアカウントで接続した端末間で同じ状態にします。接続時に自動同期され、
+        同じアカウントでログインした端末間で同じ状態にします。ログイン時に自動同期され、
         新しい方のデータが優先されます。
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -358,7 +360,7 @@ function SyncSection({
           {busy ? "同期中..." : "今すぐ同期"}
         </button>
         {!isConnected && (
-          <span className="text-sm text-slate-400">上の「Googleと接続する」を先に実行してください</span>
+          <span className="text-sm text-slate-400">先にGoogleでログインしてください</span>
         )}
         {last > 0 && (
           <span className="text-xs text-slate-400">

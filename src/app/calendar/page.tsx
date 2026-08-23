@@ -152,9 +152,9 @@ export default function CalendarPage() {
         ) : (
           <span className="text-xs text-slate-400">
             <Link href="/settings" className="font-medium text-brand-600 hover:underline">
-              Google連携
+              ログイン
             </Link>
-            するとカレンダーの予定も表示されます
+            するとGoogleカレンダーの予定も表示されます
           </span>
         )}
         {loadingEvents && <span className="text-xs text-slate-400">予定を読み込み中...</span>}
