@@ -5,7 +5,6 @@
  * 既存のGoogle連携トークン（drive.readonly スコープ）でブラウザから直接 Drive API を呼ぶ。
  */
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useGoogle } from "@/lib/google";
 
@@ -83,7 +82,7 @@ export function DriveWidget() {
   return (
     <section className="card p-4 sm:p-5">
       <div className="flex items-center justify-between">
-        <h2 className="font-bold text-slate-900">📁 Google ドライブ</h2>
+        <h2 className="font-bold text-slate-900">📁 ドライブ</h2>
         <a
           href="https://drive.google.com/"
           target="_blank"
@@ -95,12 +94,7 @@ export function DriveWidget() {
       </div>
 
       {!isConnected ? (
-        <p className="mt-3 text-sm text-slate-400">
-          <Link href="/settings" className="font-medium text-brand-600 hover:underline">
-            Googleにログイン
-          </Link>
-          すると、最近のファイルがここに表示されます。
-        </p>
+        <p className="mt-3 text-sm text-slate-400">ログインすると表示されます</p>
       ) : error ? (
         <p className="mt-3 text-sm text-amber-700">{error}</p>
       ) : !files ? (

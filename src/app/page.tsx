@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useTasks } from "@/lib/store";
 import { formatJaDate, daysUntil } from "@/lib/date";
-import { StatusBadge, PriorityBadge } from "@/components/badges";
 import { WeatherWidget } from "@/components/WeatherWidget";
 import { NewsWidget } from "@/components/NewsWidget";
 import { DriveWidget } from "@/components/DriveWidget";
@@ -11,12 +11,29 @@ import { FavoritesWidget } from "@/components/FavoritesWidget";
 import { MiniCalendar } from "@/components/MiniCalendar";
 import { UpcomingEvents } from "@/components/UpcomingEvents";
 
+const DOW = ["日", "月", "火", "水", "木", "金", "土"];
+
+function greeting(hour: number): string {
+  if (hour < 5) return "こんばんは";
+  if (hour < 11) return "おはようございます";
+  if (hour < 18) return "こんにちは";
+  return "こんばんは";
+}
+
 export default function HomePage() {
   const { tasks, ready } = useTasks();
 
+  // 日時はブラウザ側で確定させる（静的書き出し時の時刻を表示しないため）。
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => setNow(new Date()), []);
+
   const open = tasks.filter((t) => t.status !== "done");
-  const inProgress = tasks.filter((t) => t.status === "in-progress");
   const done = tasks.filter((t) => t.status === "done");
+  const dueToday = open.filter((t) => daysUntil(t.dueDate) === 0).length;
+  const overdue = open.filter((t) => {
+    const d = daysUntil(t.dueDate);
+    return d !== null && d < 0;
+  }).length;
   const completionRate =
     tasks.length === 0 ? 0 : Math.round((done.length / tasks.length) * 100);
 
@@ -26,163 +43,115 @@ export default function HomePage() {
     .slice(0, 4);
 
   return (
-    <div className="space-y-10">
-      {/* ヒーロー */}
-      <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-brand-500 to-sky-400 px-6 py-10 text-white shadow-lg sm:px-10 sm:py-14">
-        <h1 className="max-w-2xl text-2xl font-bold leading-snug sm:text-4xl">
-          やるべきことと、必要な知識を、
-          <br className="hidden sm:block" />
-          ひとつの場所で。
-        </h1>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/85 sm:text-base">
-          タスクごとにスキル・参考資料も整理。Googleカレンダー連携とAIアシストで、締切も知識も逃しません。
-        </p>
-        <div className="mt-7 flex flex-wrap gap-3">
-          <Link
-            href="/tasks"
-            className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-700 shadow-sm transition hover:bg-brand-50"
-          >
-            タスクを管理する
-          </Link>
-          <Link
-            href="/tasks?new=1"
-            className="rounded-full border border-white/50 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-          >
-            ＋ 新しいタスク
-          </Link>
-        </div>
-      </section>
-
-      {/* サマリー */}
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-        <StatCard label="未完了" value={ready ? open.length : "–"} accent="text-slate-900" />
-        <StatCard label="進行中" value={ready ? inProgress.length : "–"} accent="text-blue-600" />
-        <StatCard label="完了" value={ready ? done.length : "–"} accent="text-emerald-600" />
-        <StatCard label="完了率" value={ready ? `${completionRate}%` : "–"} accent="text-brand-600" />
-      </section>
-
-      {/* 直近の締切 */}
-      <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900 sm:text-xl">直近の締切</h2>
-          <Link
-            href="/tasks"
-            className="text-sm font-medium text-brand-600 hover:text-brand-700"
-          >
-            すべて見る →
-          </Link>
-        </div>
-        {!ready ? (
-          <p className="text-sm text-slate-500">読み込み中...</p>
-        ) : upcoming.length === 0 ? (
-          <p className="card border-dashed p-8 text-center text-sm text-slate-500">
-            締切のあるタスクはありません。
+    <div className="space-y-5 sm:space-y-6">
+      {/* あいさつ */}
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm text-slate-500">
+            {now ? `${now.getMonth() + 1}月${now.getDate()}日（${DOW[now.getDay()]}）` : " "}
           </p>
-        ) : (
-          <ul className="space-y-3">
-            {upcoming.map((task) => {
-              const d = daysUntil(task.dueDate);
-              return (
-                <li key={task.id} className="card flex items-center justify-between gap-3 p-4">
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold text-slate-900">{task.title}</p>
-                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                      <StatusBadge status={task.status} />
-                      <PriorityBadge priority={task.priority} />
-                    </div>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <p className="text-sm font-semibold text-slate-800">
-                      {formatJaDate(task.dueDate)}
-                    </p>
-                    {d !== null && (
-                      <p
-                        className={`mt-0.5 text-xs font-medium ${
-                          d < 0 ? "text-rose-600" : d <= 2 ? "text-amber-600" : "text-slate-400"
+          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">
+            {now ? greeting(now.getHours()) : " "}
+          </h1>
+        </div>
+        <Link
+          href="/tasks?new=1"
+          className="shrink-0 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
+        >
+          ＋ タスク
+        </Link>
+      </div>
+
+      {/* 数字 */}
+      <div className="grid grid-cols-4 gap-2 sm:gap-3">
+        <Stat label="未完了" value={ready ? open.length : "–"} tone="text-slate-900" />
+        <Stat
+          label="今日締切"
+          value={ready ? dueToday : "–"}
+          tone={dueToday > 0 ? "text-amber-600" : "text-slate-900"}
+        />
+        <Stat
+          label="超過"
+          value={ready ? overdue : "–"}
+          tone={overdue > 0 ? "text-rose-600" : "text-slate-900"}
+        />
+        <Stat label="完了率" value={ready ? `${completionRate}%` : "–"} tone="text-brand-600" />
+      </div>
+
+      {/* カード */}
+      <div className="grid items-start gap-3 sm:gap-4 lg:grid-cols-2">
+        <section className="card p-4 sm:p-5">
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold text-slate-900">⏰ 締切間近</h2>
+            <Link href="/tasks" className="text-sm font-medium text-brand-600 hover:text-brand-700">
+              すべて →
+            </Link>
+          </div>
+          {!ready ? null : upcoming.length === 0 ? (
+            <p className="mt-3 text-sm text-slate-400">なし</p>
+          ) : (
+            <ul className="mt-2 divide-y divide-slate-100">
+              {upcoming.map((task) => {
+                const d = daysUntil(task.dueDate);
+                return (
+                  <li key={task.id}>
+                    <Link
+                      href="/tasks"
+                      className="flex items-center justify-between gap-3 py-2.5"
+                    >
+                      <span className="min-w-0 truncate text-sm font-medium text-slate-800">
+                        {task.title}
+                      </span>
+                      <span
+                        className={`shrink-0 text-xs font-semibold ${
+                          d === null
+                            ? "text-slate-400"
+                            : d < 0
+                              ? "text-rose-600"
+                              : d <= 2
+                                ? "text-amber-600"
+                                : "text-slate-400"
                         }`}
                       >
-                        {d < 0 ? `${-d}日超過` : d === 0 ? "今日" : `あと${d}日`}
-                      </p>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
-
-      {/* ウィジェット（カレンダー・行事・天気・ニュース・ドライブ・お気に入り） */}
-      <section className="grid gap-3 sm:gap-4 lg:grid-cols-2">
+                        {d === null
+                          ? formatJaDate(task.dueDate)
+                          : d < 0
+                            ? `${-d}日超過`
+                            : d === 0
+                              ? "今日"
+                              : `あと${d}日`}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+        <WeatherWidget />
         <MiniCalendar />
         <UpcomingEvents />
-        <WeatherWidget />
         <NewsWidget />
-        <DriveWidget />
         <FavoritesWidget />
-      </section>
-
-      {/* できること */}
-      <section>
-        <h2 className="mb-4 text-lg font-bold text-slate-900 sm:text-xl">できること</h2>
-        <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
-          <FeatureCard
-            emoji="✅"
-            title="タスク管理"
-            body="大項目・小項目で整理。リスト / カンバン / ガントを切替。"
-            href="/tasks"
-          />
-          <FeatureCard
-            emoji="🧠"
-            title="知識・AIアシスト"
-            body="必要なスキルや資料をタスクに紐付け。AIが提案・分解。"
-            href="/knowledge"
-          />
-          <FeatureCard
-            emoji="📅"
-            title="カレンダー連携"
-            body="締切をGoogleカレンダーへ登録。予定と並べて確認。"
-            href="/calendar"
-          />
-        </div>
-      </section>
+        <DriveWidget />
+      </div>
     </div>
   );
 }
 
-function StatCard({
+function Stat({
   label,
   value,
-  accent,
+  tone,
 }: {
   label: string;
   value: string | number;
-  accent: string;
+  tone: string;
 }) {
   return (
-    <div className="card p-4 sm:p-5">
-      <p className="text-sm text-slate-500">{label}</p>
-      <p className={`mt-1 text-3xl font-bold tracking-tight ${accent}`}>{value}</p>
+    <div className="card px-2 py-3 text-center sm:py-4">
+      <p className={`text-xl font-bold tracking-tight sm:text-2xl ${tone}`}>{value}</p>
+      <p className="mt-0.5 text-[11px] text-slate-500 sm:text-xs">{label}</p>
     </div>
-  );
-}
-
-function FeatureCard({
-  emoji,
-  title,
-  body,
-  href,
-}: {
-  emoji: string;
-  title: string;
-  body: string;
-  href: string;
-}) {
-  return (
-    <Link href={href} className="card block p-5 transition hover:border-brand-200 hover:shadow-md">
-      <span className="text-2xl">{emoji}</span>
-      <h3 className="mt-2 font-bold text-slate-900">{title}</h3>
-      <p className="mt-1 text-sm leading-relaxed text-slate-500">{body}</p>
-    </Link>
   );
 }

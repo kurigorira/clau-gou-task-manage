@@ -57,10 +57,10 @@ export function MiniCalendar() {
     <section className="card p-4 sm:p-5">
       <div className="flex items-center justify-between">
         <h2 className="font-bold text-slate-900">
-          🗓 {month + 1}月のカレンダー
+          🗓 {month + 1}月
         </h2>
         <Link href="/calendar" className="text-sm font-medium text-brand-600 hover:text-brand-700">
-          詳しく →
+          開く →
         </Link>
       </div>
 

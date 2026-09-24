@@ -58,7 +58,10 @@ export function FavoritesWidget() {
     let u = url.trim();
     if (!u) return;
     if (!/^https?:\/\//.test(u)) u = `https://${u}`;
-    setItems((prev) => [...prev, { id: createId(), label: label.trim(), url: u }]);
+    setItems((prev) => [
+      ...prev,
+      { id: createId(), label: label.trim(), url: u },
+    ]);
     touchLocalData();
     setLabel("");
     setUrl("");
@@ -68,20 +71,16 @@ export function FavoritesWidget() {
     <section className="card p-4 sm:p-5">
       <div className="flex items-center justify-between">
         <h2 className="font-bold text-slate-900">⭐ お気に入り</h2>
-        {items.length > 0 && (
-          <button
-            onClick={() => setEditing((v) => !v)}
-            className="rounded-lg px-2 py-1 text-sm text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-          >
-            {editing ? "完了" : "編集"}
-          </button>
-        )}
+        <button
+          onClick={() => setEditing((v) => !v)}
+          className="rounded-lg px-2 py-1 text-sm font-medium text-brand-600 hover:bg-brand-50"
+        >
+          {editing ? "完了" : items.length === 0 ? "＋ 追加" : "編集"}
+        </button>
       </div>
 
       {items.length === 0 ? (
-        <p className="mt-3 text-sm text-slate-400">
-          よく見るサイトを登録しておくと、ここからすぐ開けます。
-        </p>
+        <p className="mt-3 text-sm text-slate-400">未登録</p>
       ) : (
         <ul className="mt-3 flex flex-wrap gap-2">
           {items.map((f) => (
@@ -119,28 +118,30 @@ export function FavoritesWidget() {
         </ul>
       )}
 
-      <form onSubmit={add} className="mt-3 flex flex-col gap-2 sm:flex-row">
-        <input
-          type="text"
-          value={label}
-          onChange={(e) => setLabel(e.target.value)}
-          placeholder="名前（省略可）"
-          className="input sm:w-32"
-        />
-        <input
-          type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="example.com"
-          className="input sm:flex-1"
-        />
-        <button
-          type="submit"
-          className="rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-700"
-        >
-          追加
-        </button>
-      </form>
+      {editing && (
+        <form onSubmit={add} className="mt-3 flex flex-col gap-2 sm:flex-row">
+          <input
+            type="text"
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            placeholder="名前（省略可）"
+            className="input sm:w-32"
+          />
+          <input
+            type="text"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="example.com"
+            className="input sm:flex-1"
+          />
+          <button
+            type="submit"
+            className="rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-700"
+          >
+            追加
+          </button>
+        </form>
+      )}
     </section>
   );
 }

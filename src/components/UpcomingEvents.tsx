@@ -32,22 +32,16 @@ export function UpcomingEvents() {
   return (
     <section className="card p-4 sm:p-5">
       <div className="flex items-center justify-between">
-        <h2 className="font-bold text-slate-900">📌 今後の行事予定</h2>
+        <h2 className="font-bold text-slate-900">📌 行事予定</h2>
         <Link href="/calendar" className="text-sm font-medium text-brand-600 hover:text-brand-700">
-          追加・管理 →
+          追加 →
         </Link>
       </div>
 
       {!ready ? (
         <p className="mt-3 text-sm text-slate-400">読み込み中...</p>
       ) : upcoming.length === 0 ? (
-        <p className="mt-3 text-sm text-slate-400">
-          予定はありません。
-          <Link href="/calendar" className="ml-1 font-medium text-brand-600 hover:underline">
-            カレンダー
-          </Link>
-          から会社・プライベートの行事を追加できます（ICS一括取り込み対応）。
-        </p>
+        <p className="mt-3 text-sm text-slate-400">なし</p>
       ) : (
         <ul className="mt-3 divide-y divide-slate-100">
           {upcoming.map((ev) => {

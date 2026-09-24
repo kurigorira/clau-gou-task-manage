@@ -117,7 +117,7 @@ export function NewsWidget() {
   return (
     <section className="card p-4 sm:p-5">
       <div className="flex items-center justify-between">
-        <h2 className="font-bold text-slate-900">📰 最新ニュース</h2>
+        <h2 className="font-bold text-slate-900">📰 ニュース</h2>
         <button
           onClick={() => void load()}
           disabled={loading}
