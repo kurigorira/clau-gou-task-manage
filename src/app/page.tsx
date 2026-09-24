@@ -10,6 +10,7 @@ import { DriveWidget } from "@/components/DriveWidget";
 import { FavoritesWidget } from "@/components/FavoritesWidget";
 import { MiniCalendar } from "@/components/MiniCalendar";
 import { UpcomingEvents } from "@/components/UpcomingEvents";
+import { DailySaying } from "@/components/DailySaying";
 
 const DOW = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -44,6 +45,8 @@ export default function HomePage() {
 
   return (
     <div className="space-y-5 sm:space-y-6">
+      <DailySaying />
+
       {/* あいさつ */}
       <div className="flex items-center justify-between gap-3">
         <div>
