@@ -14,7 +14,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { touchLocalData } from "./driveSync";
+import { touchLocalData, recordDeletion, onSyncApplied } from "./driveSync";
 
 export type EventCategory = "company" | "private";
 
@@ -24,6 +24,8 @@ export interface CalEvent {
   /** YYYY-MM-DD */
   date: string;
   category: EventCategory;
+  /** 最終更新時刻（ms）。端末間同期のマージに使う。 */
+  updatedAt?: number;
 }
 
 export const CATEGORY_LABEL: Record<EventCategory, string> = {
@@ -43,12 +45,15 @@ function createId(): string {
 interface EventsContextValue {
   events: CalEvent[];
   ready: boolean;
-  addEvent: (e: Omit<CalEvent, "id">) => void;
+  addEvent: (e: Omit<CalEvent, "id" | "updatedAt">) => void;
   deleteEvent: (id: string) => void;
   /** 指定カテゴリの予定を全削除（再取り込み前の掃除に使う）。 */
   clearCategory: (c: EventCategory) => void;
   /** 一括取り込み。同じ日付＋タイトルはスキップし、追加/スキップ件数を返す。 */
-  importEvents: (items: Omit<CalEvent, "id">[]) => { added: number; skipped: number };
+  importEvents: (items: Omit<CalEvent, "id" | "updatedAt">[]) => {
+    added: number;
+    skipped: number;
+  };
 }
 
 const EventsContext = createContext<EventsContextValue | null>(null);
@@ -67,6 +72,20 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     setReady(true);
   }, []);
 
+  // 他の端末の変更が同期で取り込まれたら読み直す。
+  useEffect(
+    () =>
+      onSyncApplied(() => {
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          setEvents(raw ? (JSON.parse(raw) as CalEvent[]) : []);
+        } catch {
+          /* noop */
+        }
+      }),
+    [],
+  );
+
   useEffect(() => {
     if (!ready) return;
     try {
@@ -77,18 +96,20 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   }, [events, ready]);
 
   const addEvent = useCallback<EventsContextValue["addEvent"]>((e) => {
-    setEvents((prev) => [...prev, { ...e, id: createId() }]);
+    setEvents((prev) => [...prev, { ...e, id: createId(), updatedAt: Date.now() }]);
     touchLocalData();
   }, []);
 
   const deleteEvent = useCallback<EventsContextValue["deleteEvent"]>((id) => {
     setEvents((prev) => prev.filter((e) => e.id !== id));
-    touchLocalData();
+    recordDeletion([id]);
   }, []);
 
   const clearCategory = useCallback<EventsContextValue["clearCategory"]>((c) => {
-    setEvents((prev) => prev.filter((e) => e.category !== c));
-    touchLocalData();
+    setEvents((prev) => {
+      recordDeletion(prev.filter((e) => e.category === c).map((e) => e.id));
+      return prev.filter((e) => e.category !== c);
+    });
   }, []);
 
   const importEvents = useCallback<EventsContextValue["importEvents"]>(
@@ -103,7 +124,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
           continue;
         }
         seen.add(key);
-        fresh.push({ ...item, id: createId() });
+        fresh.push({ ...item, id: createId(), updatedAt: Date.now() });
       }
       if (fresh.length > 0) {
         setEvents((prev) => [...prev, ...fresh]);

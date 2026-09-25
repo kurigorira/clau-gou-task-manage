@@ -326,17 +326,18 @@ function SyncSection({
     try {
       const result = await syncWithDrive(accessToken);
       setLast(lastSyncedAt());
-      if (result.action === "downloaded") {
-        setMessage("他の端末のデータを取り込みました。画面を更新します...");
-        setTimeout(() => window.location.reload(), 800);
-      } else if (result.action === "uploaded") {
-        setMessage("この端末のデータをDriveに保存しました。");
+      if (result.pulled && result.pushed) {
+        setMessage("他の端末の変更を取り込み、この端末の変更も保存しました。");
+      } else if (result.pulled) {
+        setMessage("他の端末の変更を取り込みました。");
+      } else if (result.pushed) {
+        setMessage("この端末の変更をDriveに保存しました。");
       } else {
         setMessage("すでに最新の状態です。");
       }
     } catch {
       setMessage(
-        "同期に失敗しました。Google Cloud で Drive API が有効か確認し、一度切断して再接続してください。",
+        "同期に失敗しました。Google Cloud で Drive API が有効か確認し、一度ログアウトして再ログインしてください。",
       );
     } finally {
       setBusy(false);
@@ -348,8 +349,8 @@ function SyncSection({
       <h2 className="font-semibold text-slate-900">端末間同期（Google Drive）</h2>
       <p className="mt-1 text-sm text-slate-500">
         タスク・行事予定・お気に入りを、あなたのGoogleドライブの非公開領域に保存し、
-        同じアカウントでログインした端末間で同じ状態にします。ログイン時に自動同期され、
-        新しい方のデータが優先されます。
+        同じアカウントでログインした端末間で同じ状態にします。ログイン中は自動で同期し、
+        両方の端末の変更を1件ずつ合わせます（どちらかで削除したものは両方から消えます）。
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button

@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import type { ReferenceLink } from "./types";
+import { onSyncApplied, touchScalar } from "./driveSync";
 
 /**
  * Claude（Anthropic API）連携。
@@ -87,12 +88,16 @@ export function AnthropicProvider({ children }: { children: React.ReactNode }) {
   const [apiKey, setApiKeyState] = useState("");
 
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(API_KEY_STORAGE);
-      if (saved) setApiKeyState(saved);
-    } catch {
-      /* noop */
-    }
+    const load = () => {
+      try {
+        setApiKeyState(window.localStorage.getItem(API_KEY_STORAGE) ?? "");
+      } catch {
+        /* noop */
+      }
+    };
+    load();
+    // 他の端末で設定したキーが同期で取り込まれたら読み直す。
+    return onSyncApplied(load);
   }, []);
 
   const setApiKey = useCallback((key: string) => {
@@ -104,6 +109,7 @@ export function AnthropicProvider({ children }: { children: React.ReactNode }) {
     } catch {
       /* noop */
     }
+    touchScalar(API_KEY_STORAGE);
   }, []);
 
   const suggestSkills = useCallback<AnthropicContextValue["suggestSkills"]>(

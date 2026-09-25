@@ -5,12 +5,13 @@
  */
 
 import { useEffect, useState } from "react";
-import { touchLocalData } from "@/lib/driveSync";
+import { touchLocalData, recordDeletion, onSyncApplied } from "@/lib/driveSync";
 
 interface Favorite {
   id: string;
   label: string;
   url: string;
+  updatedAt?: number;
 }
 
 const KEY = "atlas-favorites-v1";
@@ -35,13 +36,18 @@ export function FavoritesWidget() {
   const [url, setUrl] = useState("");
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(KEY);
-      if (raw) setItems(JSON.parse(raw) as Favorite[]);
-    } catch {
-      /* noop */
-    }
+    const load = () => {
+      try {
+        const raw = window.localStorage.getItem(KEY);
+        setItems(raw ? (JSON.parse(raw) as Favorite[]) : []);
+      } catch {
+        /* noop */
+      }
+    };
+    load();
     setReady(true);
+    // 他の端末の変更が同期で取り込まれたら読み直す。
+    return onSyncApplied(load);
   }, []);
 
   useEffect(() => {
@@ -60,7 +66,7 @@ export function FavoritesWidget() {
     if (!/^https?:\/\//.test(u)) u = `https://${u}`;
     setItems((prev) => [
       ...prev,
-      { id: createId(), label: label.trim(), url: u },
+      { id: createId(), label: label.trim(), url: u, updatedAt: Date.now() },
     ]);
     touchLocalData();
     setLabel("");
@@ -105,7 +111,7 @@ export function FavoritesWidget() {
                 <button
                   onClick={() => {
                     setItems((prev) => prev.filter((x) => x.id !== f.id));
-                    touchLocalData();
+                    recordDeletion([f.id]);
                   }}
                   className="ml-0.5 rounded-full px-1.5 text-slate-400 hover:text-rose-600"
                   aria-label="削除"

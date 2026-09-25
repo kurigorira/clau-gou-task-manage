@@ -31,6 +31,8 @@ export interface Task {
   /** 繰り返し設定。完了時に次回分を自動生成する。 */
   recurrence: Recurrence;
   createdAt: string;
+  /** 最終更新時刻（ms）。端末間同期のマージに使う。 */
+  updatedAt?: number;
 }
 
 export const STATUS_LABEL: Record<TaskStatus, string> = {

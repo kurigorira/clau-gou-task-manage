@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 import type { Task } from "./types";
-import { touchLocalData } from "./driveSync";
+import { touchLocalData, recordDeletion, onSyncApplied } from "./driveSync";
 
 const STORAGE_KEY = "clau-gou-tasks-v1";
 
@@ -136,6 +136,10 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) {
         setTasks(JSON.parse(raw) as Task[]);
+      } else if (window.localStorage.getItem("clau-gou-google-client-id")) {
+        // ログイン設定済みの端末は同期でデータが届くので、見本タスクは入れない
+        // （入れると同期で他の端末にも広がってしまう）。
+        setTasks([]);
       } else {
         setTasks(seedTasks);
       }
@@ -144,6 +148,20 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     }
     setReady(true);
   }, []);
+
+  // 他の端末の変更が同期で取り込まれたら、保存済みデータを読み直す。
+  useEffect(
+    () =>
+      onSyncApplied(() => {
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          if (raw) setTasks(JSON.parse(raw) as Task[]);
+        } catch {
+          /* noop */
+        }
+      }),
+    [],
+  );
 
   // 変更を localStorage に保存。
   useEffect(() => {
@@ -160,6 +178,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       ...task,
       id: createId(),
       createdAt: new Date().toISOString().slice(0, 10),
+      updatedAt: Date.now(),
     };
     setTasks((prev) => [newTask, ...prev]);
     touchLocalData();
@@ -169,7 +188,8 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   const updateTask = useCallback<TaskContextValue["updateTask"]>((id, patch) => {
     touchLocalData();
     setTasks((prev) => {
-      const next = prev.map((t) => (t.id === id ? { ...t, ...patch } : t));
+      const now = Date.now();
+      const next = prev.map((t) => (t.id === id ? { ...t, ...patch, updatedAt: now } : t));
       // 繰り返しタスクが「完了」になったら、次回分を自動生成する。
       const before = prev.find((t) => t.id === id);
       const after = next.find((t) => t.id === id);
@@ -191,6 +211,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
           dueDate: advanceDate(after.dueDate, after.recurrence),
           googleEventId: null,
           createdAt: new Date().toISOString().slice(0, 10),
+          updatedAt: now,
         };
         return [clone, ...next];
       }
@@ -199,12 +220,13 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const deleteTask = useCallback<TaskContextValue["deleteTask"]>((id) => {
-    touchLocalData();
+    recordDeletion([id]);
+    const now = Date.now();
     // 削除するタスクの子（小項目）は親を外して大項目化し、データを失わないようにする。
     setTasks((prev) =>
       prev
         .filter((t) => t.id !== id)
-        .map((t) => (t.parentId === id ? { ...t, parentId: null } : t)),
+        .map((t) => (t.parentId === id ? { ...t, parentId: null, updatedAt: now } : t)),
     );
   }, []);
 
@@ -214,7 +236,13 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   );
 
   const replaceAll = useCallback<TaskContextValue["replaceAll"]>((next) => {
-    setTasks(next);
+    const now = Date.now();
+    const keep = new Set(next.map((t) => t.id));
+    setTasks((prev) => {
+      // 置き換えで消えるタスクは削除として記録し、他の端末からも消す。
+      recordDeletion(prev.filter((t) => !keep.has(t.id)).map((t) => t.id));
+      return next.map((t) => ({ ...t, updatedAt: now }));
+    });
     touchLocalData();
   }, []);
 

@@ -2,16 +2,27 @@
 
 /**
  * 端末間同期の自動実行（画面には何も表示しない）。
- * - Google接続が有効になった時点で1回同期（リモートが新しければ反映してリロード）。
- * - 接続中はローカル変更を定期チェックし、変更があれば自動アップロード。
+ * ログイン中は次のタイミングで同期する:
+ * - ログインした直後
+ * - この端末で変更したとき（数秒以内）
+ * - 1分ごと（他の端末の変更を取り込むため）
+ * - アプリの画面に戻ってきたとき
  */
 
 import { useEffect, useRef } from "react";
 import { useGoogle } from "@/lib/google";
-import { syncWithDrive, localUpdatedAt, lastSyncedAt } from "@/lib/driveSync";
+import {
+  syncWithDrive,
+  localUpdatedAt,
+  lastSyncedAt,
+  DriveAuthError,
+} from "@/lib/driveSync";
+
+const PULL_INTERVAL_MS = 60_000;
+const PUSH_CHECK_MS = 3_000;
 
 export function SyncManager() {
-  const { isConnected, accessToken } = useGoogle();
+  const { isConnected, accessToken, expire } = useGoogle();
   const busy = useRef(false);
 
   useEffect(() => {
@@ -19,33 +30,39 @@ export function SyncManager() {
     let cancelled = false;
 
     const run = async () => {
-      if (busy.current) return;
+      if (busy.current || cancelled) return;
       busy.current = true;
       try {
-        const result = await syncWithDrive(accessToken);
-        if (!cancelled && result.action === "downloaded") {
-          // 他端末の新しいデータを取り込んだので、画面全体を最新状態にする。
-          window.location.reload();
-        }
-      } catch {
-        // 失敗しても静かに次の機会を待つ（設定ページから手動同期も可能）。
+        await syncWithDrive(accessToken);
+      } catch (e) {
+        // トークンが無効になっていたら、ログアウト表示に戻して再ログインを促す。
+        if (e instanceof DriveAuthError && !cancelled) expire();
       } finally {
         busy.current = false;
       }
     };
 
-    void run(); // 接続直後に1回
+    void run();
 
-    // 接続中は、ローカルに未同期の変更があればアップロードする。
-    const timer = setInterval(() => {
+    const pushTimer = setInterval(() => {
       if (localUpdatedAt() > lastSyncedAt()) void run();
-    }, 10_000);
+    }, PUSH_CHECK_MS);
+    const pullTimer = setInterval(() => void run(), PULL_INTERVAL_MS);
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void run();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
 
     return () => {
       cancelled = true;
-      clearInterval(timer);
+      clearInterval(pushTimer);
+      clearInterval(pullTimer);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
     };
-  }, [isConnected, accessToken]);
+  }, [isConnected, accessToken, expire]);
 
   return null;
 }

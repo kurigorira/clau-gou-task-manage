@@ -1,8 +1,27 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useGoogle } from "@/lib/google";
+import { lastSyncedAt, SYNC_STATUS_EVENT } from "@/lib/driveSync";
+
+/** 最後に同期できた時刻（ms）。同期のたびに更新される。 */
+function useLastSynced(): number {
+  const [t, setT] = useState(0);
+  useEffect(() => {
+    const read = () => setT(lastSyncedAt());
+    read();
+    window.addEventListener(SYNC_STATUS_EVENT, read);
+    return () => window.removeEventListener(SYNC_STATUS_EVENT, read);
+  }, []);
+  return t;
+}
+
+function hhmm(ms: number): string {
+  const d = new Date(ms);
+  return `${d.getHours()}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
 
 const NAV = [
   { href: "/", label: "ホーム" },
@@ -16,7 +35,8 @@ const NAV = [
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const { isConnected, connect, status, clientId, email, picture } = useGoogle();
+  const { isConnected, connect, status, clientId, email, picture, lastEmail } = useGoogle();
+  const synced = useLastSynced();
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -43,8 +63,20 @@ export function SiteHeader() {
           ✓
         </span>
       )}
-      <span className="text-xs font-medium text-emerald-700">ログイン中</span>
+      <span className="text-xs font-medium text-emerald-700">
+        {synced ? `同期 ${hhmm(synced)}` : "同期中…"}
+      </span>
     </Link>
+  ) : clientId && lastEmail ? (
+    // ログインが切れた状態。1タップで確認画面なしに再ログインして同期する。
+    <button
+      onClick={connect}
+      disabled={status === "connecting"}
+      title={`${lastEmail} で再ログインして同期`}
+      className="shrink-0 rounded-full bg-amber-500 px-4 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-600 disabled:opacity-60"
+    >
+      {status === "connecting" ? "同期中…" : "🔄 同期する"}
+    </button>
   ) : clientId ? (
     <button
       onClick={connect}

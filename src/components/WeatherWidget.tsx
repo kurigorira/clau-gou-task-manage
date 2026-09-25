@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { onSyncApplied, touchScalar } from "@/lib/driveSync";
 
 const CITIES = [
   { key: "sapporo", label: "札幌", lat: 43.06, lon: 141.35 },
@@ -48,12 +49,17 @@ export function WeatherWidget() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(CITY_KEY);
-      if (saved && CITIES.some((c) => c.key === saved)) setCityKey(saved);
-    } catch {
-      /* noop */
-    }
+    const load = () => {
+      try {
+        const saved = window.localStorage.getItem(CITY_KEY);
+        if (saved && CITIES.some((c) => c.key === saved)) setCityKey(saved);
+      } catch {
+        /* noop */
+      }
+    };
+    load();
+    // 他の端末で選んだ都市が同期で取り込まれたら読み直す。
+    return onSyncApplied(load);
   }, []);
 
   useEffect(() => {
@@ -83,6 +89,7 @@ export function WeatherWidget() {
     setCityKey(key);
     try {
       window.localStorage.setItem(CITY_KEY, key);
+      touchScalar(CITY_KEY);
     } catch {
       /* noop */
     }

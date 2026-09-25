@@ -28,6 +28,8 @@ const SCOPES =
   "https://www.googleapis.com/auth/drive.appdata";
 const CLIENT_ID_KEY = "clau-gou-google-client-id";
 const SESSION_KEY = "atlas-google-session-v1";
+/** ログインが切れても残す、前回ログインしたアカウント（再ログインのヒントに使う）。 */
+const LAST_EMAIL_KEY = "atlas-google-last-email";
 
 interface StoredSession {
   accessToken: string;
@@ -48,7 +50,7 @@ interface TokenError {
   message?: string;
 }
 interface TokenClient {
-  requestAccessToken: (overrides?: { prompt?: string }) => void;
+  requestAccessToken: (overrides?: { prompt?: string; hint?: string }) => void;
 }
 declare global {
   interface Window {
@@ -60,6 +62,7 @@ declare global {
             scope: string;
             callback: (resp: TokenResponse) => void;
             error_callback?: (err: TokenError) => void;
+            hint?: string;
           }) => TokenClient;
           revoke: (token: string, done?: () => void) => void;
         };
@@ -81,8 +84,12 @@ interface GoogleContextValue {
   email: string;
   picture: string;
   isConnected: boolean;
+  /** 以前この端末でログインしたアカウント（ログインが切れていても残る）。 */
+  lastEmail: string;
   connect: () => void;
   disconnect: () => void;
+  /** トークンが無効になったとき（401など）にログアウト状態へ戻す。取り消しはしない。 */
+  expire: () => void;
 }
 
 const GoogleContext = createContext<GoogleContextValue | null>(null);
@@ -118,12 +125,14 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
   const [email, setEmail] = useState("");
   const [picture, setPicture] = useState("");
   const [expiresAt, setExpiresAt] = useState(0);
+  const [lastEmail, setLastEmail] = useState("");
 
   // Client ID と保存済みログインセッションを復元。
   useEffect(() => {
     try {
       const saved = window.localStorage.getItem(CLIENT_ID_KEY);
       if (saved) setClientIdState(saved);
+      setLastEmail(window.localStorage.getItem(LAST_EMAIL_KEY) ?? "");
     } catch {
       /* noop */
     }
@@ -205,6 +214,7 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
       const tokenClient = window.google.accounts.oauth2.initTokenClient({
         client_id: clientId,
         scope: SCOPES,
+        hint: lastEmail || undefined,
         callback: (resp) => {
           if (resp.error || !resp.access_token) {
             setError(resp.error ?? "アクセストークンを取得できませんでした");
@@ -228,6 +238,14 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
               setEmail(em);
               setPicture(pic);
               saveSession({ accessToken: token, expiresAt: exp, email: em, picture: pic });
+              if (em) {
+                setLastEmail(em);
+                try {
+                  window.localStorage.setItem(LAST_EMAIL_KEY, em);
+                } catch {
+                  /* noop */
+                }
+              }
             })
             .catch(() => {
               saveSession({ accessToken: token, expiresAt: exp, email: "", picture: "" });
@@ -254,12 +272,13 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
           setStatus("error");
         },
       });
-      tokenClient.requestAccessToken();
+      // 同意済みなら確認画面を出さずに完了させる（初回や権限追加時だけ同意画面が出る）。
+      tokenClient.requestAccessToken({ prompt: "" });
     } catch (e) {
       setError(e instanceof Error ? e.message : "ログインに失敗しました");
       setStatus("error");
     }
-  }, [clientId]);
+  }, [clientId, lastEmail]);
 
   const disconnect = useCallback(() => {
     if (accessToken && window.google?.accounts?.oauth2) {
@@ -271,7 +290,20 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
     setExpiresAt(0);
     setStatus("idle");
     saveSession(null);
+    setLastEmail("");
+    try {
+      window.localStorage.removeItem(LAST_EMAIL_KEY);
+    } catch {
+      /* noop */
+    }
   }, [accessToken]);
+
+  const expire = useCallback(() => {
+    setAccessToken(null);
+    setExpiresAt(0);
+    setStatus("idle");
+    saveSession(null);
+  }, []);
 
   const value = useMemo<GoogleContextValue>(
     () => ({
@@ -284,8 +316,10 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
       email,
       picture,
       isConnected: status === "connected" && !!accessToken,
+      lastEmail,
       connect,
       disconnect,
+      expire,
     }),
     [
       clientId,
@@ -296,8 +330,10 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
       accessToken,
       email,
       picture,
+      lastEmail,
       connect,
       disconnect,
+      expire,
     ],
   );
 
