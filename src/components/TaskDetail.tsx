@@ -1,11 +1,12 @@
 "use client";
 
-import { RECURRENCE_LABEL, type Task } from "@/lib/types";
+import { RECURRENCE_LABEL, progressOf, type Task } from "@/lib/types";
 import { formatJaDate } from "@/lib/date";
 import { useTasks } from "@/lib/store";
 import { StatusBadge, PriorityBadge, SkillTag } from "@/components/badges";
 import { CalendarSync } from "@/components/CalendarSync";
 import { AiAssist } from "@/components/AiAssist";
+import { IssueList, ProgressInput, toggleDonePatch } from "@/components/TaskBits";
 
 export function TaskDetail({
   task,
@@ -16,12 +17,33 @@ export function TaskDetail({
   onEdit: () => void;
   onDelete: () => void;
 }) {
-  const { tasks } = useTasks();
+  const { tasks, updateTask } = useTasks();
+  const done = task.status === "done";
+  const progress = progressOf(task);
+  // 進捗を変えたら状態も合わせる（100%=完了、1%以上=進行中）。
+  const setProgress = (p: number) =>
+    updateTask(task.id, {
+      progress: p,
+      status: p >= 100 ? "done" : p > 0 ? "in-progress" : done ? "todo" : task.status,
+    });
   const parent = task.parentId ? tasks.find((t) => t.id === task.parentId) : undefined;
   const children = tasks.filter((t) => t.parentId === task.id);
 
   return (
     <div className="space-y-5">
+      {/* 完了ボタン */}
+      <button
+        type="button"
+        onClick={() => updateTask(task.id, toggleDonePatch(task))}
+        className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 text-base font-bold transition ${
+          done
+            ? "border-2 border-emerald-500 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+            : "bg-emerald-600 text-white shadow-sm hover:bg-emerald-700"
+        }`}
+      >
+        {done ? "✓ 完了済み（タップで未完了に戻す）" : "✓ 完了にする"}
+      </button>
+
       <div className="flex flex-wrap items-center gap-2">
         <StatusBadge status={task.status} />
         <PriorityBadge priority={task.priority} />
@@ -44,6 +66,25 @@ export function TaskDetail({
       {task.description && (
         <p className="whitespace-pre-wrap text-sm text-slate-700">{task.description}</p>
       )}
+
+      {/* 進捗 */}
+      <section className="rounded-xl border border-slate-200 p-4">
+        <h3 className="mb-2 text-sm font-semibold text-slate-700">進捗</h3>
+        <ProgressInput value={progress} onChange={setProgress} />
+      </section>
+
+      {/* 課題 */}
+      <section className="rounded-xl border border-amber-200 bg-amber-50/40 p-4">
+        <h3 className="mb-2 text-sm font-semibold text-amber-800">
+          課題
+          {(task.issues ?? []).length > 0 &&
+            `（未解決 ${(task.issues ?? []).filter((i) => !i.resolved).length} / ${(task.issues ?? []).length}）`}
+        </h3>
+        <IssueList
+          issues={task.issues ?? []}
+          onChange={(next) => updateTask(task.id, { issues: next })}
+        />
+      </section>
 
       {children.length > 0 && (
         <section className="rounded-xl border border-slate-200 bg-slate-50 p-4">

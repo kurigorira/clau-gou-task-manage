@@ -9,6 +9,8 @@ import {
   PRIORITY_LABEL,
   STATUS_LABEL,
   STATUS_ORDER,
+  openIssueCount,
+  progressOf,
   type Task,
   type TaskPriority,
   type TaskStatus,
@@ -18,6 +20,7 @@ import { StatusBadge, PriorityBadge, SkillTag } from "@/components/badges";
 import { Modal } from "@/components/Modal";
 import { TaskForm, type TaskFormValues } from "@/components/TaskForm";
 import { TaskDetail } from "@/components/TaskDetail";
+import { DoneToggle, ProgressBar, toggleDonePatch } from "@/components/TaskBits";
 
 type View = "list" | "board";
 type ModalState =
@@ -162,12 +165,25 @@ function TasksPageInner() {
           条件に一致するタスクがありません。
         </p>
       ) : view === "list" ? (
-        <ListView tasks={filtered} onSelect={(id) => setModal({ type: "detail", id })} />
+        <ListView
+          tasks={filtered}
+          onSelect={(id) => setModal({ type: "detail", id })}
+          onToggleDone={(t) => updateTask(t.id, toggleDonePatch(t))}
+        />
       ) : (
         <BoardView
           tasks={filtered}
           onSelect={(id) => setModal({ type: "detail", id })}
-          onMove={(id, status) => updateTask(id, { status })}
+          onMove={(id, status) => {
+            const t = getTask(id);
+            const p = t ? progressOf(t) : 0;
+            // 列の移動に合わせて進捗も揃える（完了=100%、未着手=0%）。
+            updateTask(id, {
+              status,
+              progress: status === "done" ? 100 : status === "todo" ? 0 : p >= 100 ? 90 : p,
+            });
+          }}
+          onToggleDone={(t) => updateTask(t.id, toggleDonePatch(t))}
         />
       )}
 
@@ -230,9 +246,11 @@ function ViewButton({
 function ListView({
   tasks,
   onSelect,
+  onToggleDone,
 }: {
   tasks: Task[];
   onSelect: (id: string) => void;
+  onToggleDone: (task: Task) => void;
 }) {
   // 表示対象を「大項目 → その小項目」の順にグループ化する。
   const ids = new Set(tasks.map((t) => t.id));
@@ -245,12 +263,17 @@ function ListView({
         const children = childrenOf(parent.id);
         return (
           <div key={parent.id} className="card overflow-hidden">
-            <TaskRow task={parent} onSelect={onSelect} />
+            <TaskRow task={parent} onSelect={onSelect} onToggleDone={onToggleDone} />
             {children.length > 0 && (
               <ul className="border-t border-slate-100 bg-slate-50/60">
                 {children.map((child) => (
                   <li key={child.id} className="border-b border-slate-100 last:border-b-0">
-                    <TaskRow task={child} onSelect={onSelect} isChild />
+                    <TaskRow
+                      task={child}
+                      onSelect={onSelect}
+                      onToggleDone={onToggleDone}
+                      isChild
+                    />
                   </li>
                 ))}
               </ul>
@@ -265,44 +288,54 @@ function ListView({
 function TaskRow({
   task,
   onSelect,
+  onToggleDone,
   isChild,
 }: {
   task: Task;
   onSelect: (id: string) => void;
+  onToggleDone: (task: Task) => void;
   isChild?: boolean;
 }) {
+  const issues = openIssueCount(task);
   return (
-    <button
-      onClick={() => onSelect(task.id)}
-      className={`w-full text-left transition hover:bg-brand-50/60 ${
-        isChild ? "py-3 pl-10 pr-4" : "p-4"
+    <div
+      className={`flex items-start gap-3 transition hover:bg-brand-50/60 ${
+        isChild ? "py-3 pl-8 pr-4" : "p-4"
       }`}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
+      <div className="pt-0.5">
+        <DoneToggle task={task} onToggle={() => onToggleDone(task)} size={isChild ? "sm" : "md"} />
+      </div>
+      <button onClick={() => onSelect(task.id)} className="min-w-0 flex-1 text-left">
+        <div className="flex items-start justify-between gap-3">
           <p
-            className={`${
+            className={`min-w-0 ${
               isChild ? "text-sm font-medium text-slate-700" : "font-semibold text-slate-900"
             } ${task.status === "done" ? "line-through opacity-60" : ""}`}
           >
-            {isChild && <span className="mr-1.5 text-slate-300">└</span>}
             {task.title}
           </p>
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-            <StatusBadge status={task.status} />
-            <PriorityBadge priority={task.priority} />
-            {!isChild &&
-              task.requiredSkills.slice(0, 2).map((s) => <SkillTag key={s}>{s}</SkillTag>)}
-            {!isChild && task.requiredSkills.length > 2 && (
-              <span className="text-xs text-slate-400">
-                +{task.requiredSkills.length - 2}
-              </span>
-            )}
-          </div>
+          <DueChip due={task.dueDate} />
         </div>
-        <DueChip due={task.dueDate} />
-      </div>
-    </button>
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          <StatusBadge status={task.status} />
+          <PriorityBadge priority={task.priority} />
+          {issues > 0 && (
+            <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-800">
+              ⚠ 課題 {issues}
+            </span>
+          )}
+          {!isChild &&
+            task.requiredSkills.slice(0, 2).map((s) => <SkillTag key={s}>{s}</SkillTag>)}
+          {!isChild && task.requiredSkills.length > 2 && (
+            <span className="text-xs text-slate-400">+{task.requiredSkills.length - 2}</span>
+          )}
+        </div>
+        <div className="mt-2 max-w-xs">
+          <ProgressBar value={progressOf(task)} compact />
+        </div>
+      </button>
+    </div>
   );
 }
 
@@ -310,10 +343,12 @@ function BoardView({
   tasks,
   onSelect,
   onMove,
+  onToggleDone,
 }: {
   tasks: Task[];
   onSelect: (id: string) => void;
   onMove: (id: string, status: TaskStatus) => void;
+  onToggleDone: (task: Task) => void;
 }) {
   return (
     <div className="grid gap-4 sm:grid-cols-3">
@@ -333,15 +368,28 @@ function BoardView({
                   key={task.id}
                   className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
                 >
-                  <button
-                    onClick={() => onSelect(task.id)}
-                    className="text-left text-sm font-medium text-slate-900 hover:text-brand-700"
-                  >
-                    {task.title}
-                  </button>
+                  <div className="flex items-start gap-2">
+                    <DoneToggle task={task} onToggle={() => onToggleDone(task)} size="sm" />
+                    <button
+                      onClick={() => onSelect(task.id)}
+                      className="min-w-0 flex-1 text-left text-sm font-medium text-slate-900 hover:text-brand-700"
+                    >
+                      {task.title}
+                    </button>
+                  </div>
                   <div className="mt-2 flex items-center justify-between">
-                    <PriorityBadge priority={task.priority} />
+                    <div className="flex items-center gap-1.5">
+                      <PriorityBadge priority={task.priority} />
+                      {openIssueCount(task) > 0 && (
+                        <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800">
+                          ⚠ {openIssueCount(task)}
+                        </span>
+                      )}
+                    </div>
                     <DueChip due={task.dueDate} compact />
+                  </div>
+                  <div className="mt-2">
+                    <ProgressBar value={progressOf(task)} compact />
                   </div>
                   <div className="mt-2 flex gap-1">
                     {STATUS_ORDER.filter((s) => s !== status).map((s) => (

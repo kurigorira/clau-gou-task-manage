@@ -210,6 +210,8 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
             : null,
           dueDate: advanceDate(after.dueDate, after.recurrence),
           googleEventId: null,
+          progress: 0,
+          issues: [],
           createdAt: new Date().toISOString().slice(0, 10),
           updatedAt: now,
         };

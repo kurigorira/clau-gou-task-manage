@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { useTasks } from "@/lib/store";
-import type { Task } from "@/lib/types";
+import { progressOf, type Task } from "@/lib/types";
 
 const DAY_W = 28; // 1日あたりの幅(px)
 
@@ -35,8 +35,8 @@ interface Row {
 
 const BAR_COLOR: Record<string, string> = {
   todo: "bg-slate-300",
-  "in-progress": "bg-brand-500",
-  done: "bg-emerald-400",
+  "in-progress": "bg-brand-300",
+  done: "bg-emerald-300",
 };
 
 export default function GanttPage() {
@@ -100,11 +100,11 @@ export default function GanttPage() {
             未着手
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-2.5 w-4 rounded-sm bg-brand-500" />
+            <span className="h-2.5 w-4 rounded-sm bg-brand-300" />
             進行中
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-2.5 w-4 rounded-sm bg-emerald-400" />
+            <span className="h-2.5 w-4 rounded-sm bg-emerald-300" />
             完了
           </span>
         </div>
@@ -255,21 +255,22 @@ function GanttRow({
         )}
         {bar ? (
           <div
-            className={`absolute top-1/2 flex -translate-y-1/2 items-center rounded-full ${
-              isParent
-                ? "h-2 bg-slate-400/70"
-                : `h-5 shadow-sm ${BAR_COLOR[task.status] ?? "bg-slate-300"}`
+            className={`absolute top-1/2 flex -translate-y-1/2 items-center overflow-hidden rounded-full ${
+              isParent ? "h-2 bg-slate-400/70" : "h-5 bg-slate-200 shadow-sm"
             }`}
             style={{ left: bar.left + 2, width: Math.max(bar.width - 4, 8) }}
-            title={`${range![0]} 〜 ${range![1]}`}
+            title={`${range![0]} 〜 ${range![1]}（進捗 ${progressOf(task)}%）`}
           >
+            {/* 進捗の分だけ色で塗る */}
+            {!isParent && (
+              <div
+                className={`absolute inset-y-0 left-0 ${BAR_COLOR[task.status] ?? "bg-slate-300"}`}
+                style={{ width: `${progressOf(task)}%` }}
+              />
+            )}
             {!isParent && bar.width > 64 && (
-              <span
-                className={`truncate px-2 text-[10px] font-medium ${
-                  task.status === "todo" ? "text-slate-600" : "text-white"
-                }`}
-              >
-                {task.title}
+              <span className="relative truncate px-2 text-[10px] font-medium text-slate-800">
+                {task.title} {progressOf(task)}%
               </span>
             )}
           </div>

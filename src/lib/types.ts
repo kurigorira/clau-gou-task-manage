@@ -7,6 +7,14 @@ export interface ReferenceLink {
   url: string;
 }
 
+/** タスクの課題（困っていること・解決すべきこと）。 */
+export interface TaskIssue {
+  id: string;
+  text: string;
+  /** 解決済みか。 */
+  resolved: boolean;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -30,6 +38,10 @@ export interface Task {
   tags: string[];
   /** 繰り返し設定。完了時に次回分を自動生成する。 */
   recurrence: Recurrence;
+  /** 進捗（0〜100%）。未設定の古いデータは状態から推定する（progressOf を使う）。 */
+  progress?: number;
+  /** 課題の一覧。 */
+  issues?: TaskIssue[];
   createdAt: string;
   /** 最終更新時刻（ms）。端末間同期のマージに使う。 */
   updatedAt?: number;
@@ -55,3 +67,14 @@ export const RECURRENCE_LABEL: Record<Recurrence, string> = {
 };
 
 export const STATUS_ORDER: TaskStatus[] = ["todo", "in-progress", "done"];
+
+/** タスクの進捗%（未設定なら完了=100、それ以外=0）。 */
+export function progressOf(t: Pick<Task, "progress" | "status">): number {
+  if (typeof t.progress === "number") return Math.max(0, Math.min(100, Math.round(t.progress)));
+  return t.status === "done" ? 100 : 0;
+}
+
+/** 未解決の課題の数。 */
+export function openIssueCount(t: Pick<Task, "issues">): number {
+  return (t.issues ?? []).filter((i) => !i.resolved).length;
+}

@@ -2,9 +2,22 @@ import type {
   Recurrence,
   ReferenceLink,
   Task,
+  TaskIssue,
   TaskPriority,
   TaskStatus,
 } from "./types";
+
+function asIssues(v: unknown): TaskIssue[] {
+  if (!Array.isArray(v)) return [];
+  return v
+    .filter((i): i is Record<string, unknown> => !!i && typeof i === "object")
+    .map((i, n) => ({
+      id: typeof i.id === "string" && i.id ? i.id : `issue-${Date.now()}-${n}`,
+      text: typeof i.text === "string" ? i.text : "",
+      resolved: i.resolved === true,
+    }))
+    .filter((i) => i.text.trim() !== "");
+}
 
 const EXPORT_VERSION = 1;
 const STATUSES: TaskStatus[] = ["todo", "in-progress", "done"];
@@ -96,6 +109,10 @@ function sanitizeTask(raw: unknown): Task | null {
     referenceLinks: asLinks(o.referenceLinks),
     tags: asStringArray(o.tags),
     recurrence,
+    ...(typeof o.progress === "number"
+      ? { progress: Math.max(0, Math.min(100, Math.round(o.progress))) }
+      : {}),
+    issues: asIssues(o.issues),
     createdAt:
       asString(o.createdAt) || new Date().toISOString().slice(0, 10),
   };

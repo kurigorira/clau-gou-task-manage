@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTasks } from "@/lib/store";
+import { progressOf } from "@/lib/types";
 import type {
   Recurrence,
   ReferenceLink,
@@ -9,6 +10,7 @@ import type {
   TaskPriority,
   TaskStatus,
 } from "@/lib/types";
+import { IssueList, ProgressInput } from "@/components/TaskBits";
 
 export type TaskFormValues = Omit<Task, "id" | "createdAt" | "googleEventId">;
 
@@ -25,6 +27,8 @@ const EMPTY: TaskFormValues = {
   referenceLinks: [],
   tags: [],
   recurrence: "none",
+  progress: 0,
+  issues: [],
 };
 
 function parseCommaList(value: string): string[] {
@@ -65,6 +69,8 @@ export function TaskForm({
         referenceLinks: initial.referenceLinks,
         tags: initial.tags,
         recurrence: initial.recurrence,
+        progress: progressOf(initial),
+        issues: initial.issues ?? [],
       }
     : EMPTY;
 
@@ -75,6 +81,28 @@ export function TaskForm({
 
   const set = <K extends keyof TaskFormValues>(key: K, v: TaskFormValues[K]) =>
     setValues((prev) => ({ ...prev, [key]: v }));
+
+  // 状態と進捗を連動させる（完了=100%、進捗100%=完了）。
+  const setStatus = (status: TaskStatus) =>
+    setValues((prev) => ({
+      ...prev,
+      status,
+      progress:
+        status === "done" ? 100 : prev.progress === 100 ? 90 : prev.progress,
+    }));
+  const setProgress = (progress: number) =>
+    setValues((prev) => ({
+      ...prev,
+      progress,
+      status:
+        progress >= 100
+          ? "done"
+          : progress > 0
+            ? "in-progress"
+            : prev.status === "done"
+              ? "todo"
+              : prev.status,
+    }));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,7 +118,7 @@ export function TaskForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <Field label="タイトル" required>
+      <Field label="タスク名" required>
         <input
           type="text"
           value={values.title}
@@ -98,6 +126,7 @@ export function TaskForm({
           placeholder="例: 企画書をまとめる"
           className="input"
           required
+          autoFocus
         />
       </Field>
 
@@ -114,7 +143,7 @@ export function TaskForm({
         <Field label="状態">
           <select
             value={values.status}
-            onChange={(e) => set("status", e.target.value as TaskStatus)}
+            onChange={(e) => setStatus(e.target.value as TaskStatus)}
             className="input"
           >
             <option value="todo">未着手</option>
@@ -150,6 +179,14 @@ export function TaskForm({
           />
         </Field>
       </div>
+
+      <Field label="進捗">
+        <ProgressInput value={values.progress ?? 0} onChange={setProgress} />
+      </Field>
+
+      <Field label="課題（困っていること・解決すべきこと）">
+        <IssueList issues={values.issues ?? []} onChange={(next) => set("issues", next)} />
+      </Field>
 
       <Field label="親タスク（大項目）">
         <select
