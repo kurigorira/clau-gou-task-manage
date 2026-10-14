@@ -23,6 +23,7 @@ export default function SettingsPage() {
     email,
     connect,
     disconnect,
+    resetAndLogin,
   } = useGoogle();
   const { apiKey, setApiKey, isConfigured: aiConfigured } = useAnthropic();
   const [draft, setDraft] = useState(clientId);
@@ -107,6 +108,14 @@ export default function SettingsPage() {
               {status === "connecting" ? "ログイン中..." : "Googleでログイン"}
             </button>
           )}
+          <button
+            onClick={resetAndLogin}
+            disabled={!clientId || !scriptReady}
+            title="保存したログイン情報を消して、アカウント選択からログインし直します"
+            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            ログインをやり直す
+          </button>
           {!scriptReady && (
             <span className="self-center text-xs text-slate-400">
               Google認証スクリプトを読み込み中...

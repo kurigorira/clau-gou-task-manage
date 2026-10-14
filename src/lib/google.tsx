@@ -50,7 +50,7 @@ interface TokenError {
   message?: string;
 }
 interface TokenClient {
-  requestAccessToken: (overrides?: { prompt?: string; hint?: string }) => void;
+  requestAccessToken: (overrides?: { prompt?: string; login_hint?: string }) => void;
 }
 declare global {
   interface Window {
@@ -62,7 +62,7 @@ declare global {
             scope: string;
             callback: (resp: TokenResponse) => void;
             error_callback?: (err: TokenError) => void;
-            hint?: string;
+            login_hint?: string;
           }) => TokenClient;
           revoke: (token: string, done?: () => void) => void;
         };
@@ -90,6 +90,10 @@ interface GoogleContextValue {
   disconnect: () => void;
   /** トークンが無効になったとき（401など）にログアウト状態へ戻す。取り消しはしない。 */
   expire: () => void;
+  /** 表示中のログインエラーを消す。 */
+  clearError: () => void;
+  /** 保存したログイン情報をすべて消し、アカウント選択からログインし直す。 */
+  resetAndLogin: () => void;
 }
 
 const GoogleContext = createContext<GoogleContextValue | null>(null);
@@ -182,7 +186,10 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
     script.async = true;
     script.defer = true;
     script.onload = () => setScriptReady(true);
-    script.onerror = () => setError("Google認証スクリプトの読み込みに失敗しました");
+    script.onerror = () => {
+      setError("Googleのログイン用プログラムを読み込めませんでした。通信状況を確認するか、広告ブロックなどの拡張機能・コンテンツブロッカーを一時的にオフにして、ページを再読み込みしてください。");
+      setStatus("error");
+    };
     document.head.appendChild(script);
   }, []);
 
@@ -197,7 +204,7 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const connect = useCallback(() => {
+  const startLogin = useCallback((mode: "normal" | "fresh") => {
     setError(null);
     if (!clientId) {
       setError("先に設定ページで Client ID を入力してください");
@@ -205,17 +212,19 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     if (!window.google?.accounts?.oauth2) {
-      setError("Google認証スクリプトがまだ読み込まれていません");
+      setError("Googleのログイン用プログラムを読み込めませんでした。通信状況を確認するか、広告ブロックなどの拡張機能・コンテンツブロッカーを一時的にオフにして、ページを再読み込みしてください。");
       setStatus("error");
       return;
     }
     setStatus("connecting");
+    let settled = false;
     try {
       const tokenClient = window.google.accounts.oauth2.initTokenClient({
         client_id: clientId,
         scope: SCOPES,
-        hint: lastEmail || undefined,
+        login_hint: mode === "normal" && lastEmail ? lastEmail : undefined,
         callback: (resp) => {
+          settled = true;
           if (resp.error || !resp.access_token) {
             setError(resp.error ?? "アクセストークンを取得できませんでした");
             setStatus("error");
@@ -253,6 +262,7 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
         },
         // ポップアップが開けない/閉じられた・生成元不一致などOAuth以外の失敗を拾う。
         error_callback: (err) => {
+          settled = true;
           if (err?.type === "popup_failed_to_open") {
             setError(
               "ログインポップアップを開けませんでした。ブラウザのポップアップブロックを解除して、もう一度お試しください。",
@@ -260,25 +270,38 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
             setStatus("error");
             return;
           }
-          // popup_closed は、Googleの「アクセスをブロック（access_denied）」画面の後にも起きる。
-          // 個人利用で最も多い原因＝OAuth同意画面のテストユーザー未登録を案内する。
+          // popup_closed は、ログイン画面を閉じたときのほか、Googleの「アクセスをブロック」画面の後にも起きる。
           setError(
-            "ログインが完了しませんでした。多くの場合、Google Cloud の「OAuth 同意画面」で、" +
-              "お使いのGoogleアカウントが『テストユーザー』に登録されていないのが原因です（エラー: access_denied）。" +
-              "対処: ①OAuth同意画面 → テストユーザーに自分のアドレスを追加する、" +
-              "または ②アプリを「公開」して本番に切り替える。" +
-              "あわせて「承認済みJavaScript生成元」に https://kurigorira.github.io が登録されているかもご確認ください。",
+            "ログインが完了しませんでした。ログイン画面を閉じた場合は、もう一度お試しください。" +
+              "Googleの画面に「アクセスをブロック」や「エラー」が出た場合は、設定ページの" +
+              "「ログインをやり直す」を試すか、Google Cloud の「OAuth 同意画面」で自分のアドレスが" +
+              "テストユーザーに登録されているかをご確認ください。",
           );
           setStatus("error");
         },
       });
-      // 同意済みなら確認画面を出さずに完了させる（初回や権限追加時だけ同意画面が出る）。
-      tokenClient.requestAccessToken({ prompt: "" });
+      // 通常は同意済みなら確認画面を出さずに完了させる（初回や権限追加時だけ同意画面が出る）。
+      // やり直しはアカウント選択と同意画面を必ず出す。
+      tokenClient.requestAccessToken({
+        prompt: mode === "fresh" ? "select_account consent" : "",
+      });
+      // スマホではログイン画面が閉じられても通知が来ないことがあるため、
+      // 2分たっても応答がなければ「ログイン中」の固まりを解除して押し直せるようにする。
+      setTimeout(() => {
+        if (settled) return;
+        setStatus((cur) => {
+          if (cur !== "connecting") return cur;
+          setError("ログインの応答がありませんでした。もう一度ログインボタンを押してください。");
+          return "error";
+        });
+      }, 120_000);
     } catch (e) {
       setError(e instanceof Error ? e.message : "ログインに失敗しました");
       setStatus("error");
     }
   }, [clientId, lastEmail]);
+
+  const connect = useCallback(() => startLogin("normal"), [startLogin]);
 
   const disconnect = useCallback(() => {
     if (accessToken && window.google?.accounts?.oauth2) {
@@ -297,6 +320,26 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
       /* noop */
     }
   }, [accessToken]);
+
+  const clearError = useCallback(() => {
+    setError(null);
+    setStatus((cur) => (cur === "error" ? "idle" : cur));
+  }, []);
+
+  const resetAndLogin = useCallback(() => {
+    setAccessToken(null);
+    setEmail("");
+    setPicture("");
+    setExpiresAt(0);
+    saveSession(null);
+    setLastEmail("");
+    try {
+      window.localStorage.removeItem(LAST_EMAIL_KEY);
+    } catch {
+      /* noop */
+    }
+    startLogin("fresh");
+  }, [startLogin]);
 
   const expire = useCallback(() => {
     setAccessToken(null);
@@ -320,6 +363,8 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
       connect,
       disconnect,
       expire,
+      clearError,
+      resetAndLogin,
     }),
     [
       clientId,
@@ -334,6 +379,8 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
       connect,
       disconnect,
       expire,
+      clearError,
+      resetAndLogin,
     ],
   );
 

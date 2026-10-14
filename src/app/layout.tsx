@@ -10,6 +10,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { PwaRegister } from "@/components/PwaRegister";
 import { ReminderManager } from "@/components/ReminderManager";
 import { SyncManager } from "@/components/SyncManager";
+import { LoginNotice } from "@/components/LoginNotice";
 
 const space = Space_Grotesk({
   subsets: ["latin"],
@@ -51,6 +52,7 @@ export default function RootLayout({
                 <ReminderManager />
                 <SyncManager />
                 <SiteHeader />
+                <LoginNotice />
                 <main className="mx-auto min-h-[calc(100vh-8rem)] w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
                   {children}
                 </main>
