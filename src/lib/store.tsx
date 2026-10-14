@@ -106,6 +106,63 @@ function advanceDate(iso: string, recurrence: Task["recurrence"]): string {
   return d.toISOString().slice(0, 10);
 }
 
+const REPEATING: Task["recurrence"][] = ["daily", "weekly", "monthly"];
+
+/** 毎日・毎週・毎月がはっきり設定されているときだけ繰り返しタスクとみなす。 */
+function isRepeating(t: Pick<Task, "recurrence">): boolean {
+  return REPEATING.includes(t.recurrence);
+}
+
+/**
+ * 読み込んだタスクを補正する。
+ * - 繰り返し機能より前に作ったタスクは recurrence が無いので「なし」に揃える。
+ * - その状態で完了にすると、以前は同じ内容の未着手タスクが複製されていた。
+ *   完了と同時に作られて一度も触っていない複製（同じ内容・未着手・0%・課題なし）を取り除く。
+ */
+function repairTasks(list: Task[]): { tasks: Task[]; removed: string[] } {
+  const missing = (t: Task) => t.recurrence === undefined;
+  const sameContent = (a: Task, b: Task) =>
+    a.title === b.title &&
+    a.description === b.description &&
+    a.priority === b.priority &&
+    (a.parentId ?? null) === (b.parentId ?? null) &&
+    (a.startDate ?? null) === (b.startDate ?? null) &&
+    (a.dueDate ?? null) === (b.dueDate ?? null);
+  const pristine = (t: Task) =>
+    t.status === "todo" &&
+    (t.progress ?? 0) === 0 &&
+    (t.issues ?? []).length === 0 &&
+    !t.googleEventId &&
+    typeof t.updatedAt === "number";
+
+  const removed = new Set<string>();
+  for (const c of list) {
+    if (!missing(c) || !pristine(c)) continue;
+    const original = list.find(
+      (o) =>
+        o.id !== c.id &&
+        !removed.has(o.id) &&
+        missing(o) &&
+        sameContent(o, c) &&
+        // 複製は作られてから触られていない（元のタスクの方が同時かそれ以降に更新されている）。
+        (o.updatedAt ?? 0) >= (c.updatedAt as number) &&
+        o.createdAt <= c.createdAt,
+    );
+    if (original) removed.add(c.id);
+  }
+  const tasks = list
+    .filter((t) => !removed.has(t.id))
+    .map((t) => (missing(t) ? { ...t, recurrence: "none" as const } : t));
+  return { tasks, removed: Array.from(removed) };
+}
+
+/** 保存済みのタスクを読み、補正して返す（取り除いた複製は削除として記録し、他の端末からも消す）。 */
+function loadRepaired(raw: string): Task[] {
+  const { tasks, removed } = repairTasks(JSON.parse(raw) as Task[]);
+  recordDeletion(removed);
+  return tasks;
+}
+
 interface TaskContextValue {
   tasks: Task[];
   ready: boolean;
@@ -135,7 +192,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) {
-        setTasks(JSON.parse(raw) as Task[]);
+        setTasks(loadRepaired(raw));
       } else if (window.localStorage.getItem("clau-gou-google-client-id")) {
         // ログイン設定済みの端末は同期でデータが届くので、見本タスクは入れない
         // （入れると同期で他の端末にも広がってしまう）。
@@ -155,7 +212,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       onSyncApplied(() => {
         try {
           const raw = window.localStorage.getItem(STORAGE_KEY);
-          if (raw) setTasks(JSON.parse(raw) as Task[]);
+          if (raw) setTasks(loadRepaired(raw));
         } catch {
           /* noop */
         }
@@ -198,9 +255,20 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
         after &&
         before.status !== "done" &&
         after.status === "done" &&
-        after.recurrence !== "none" &&
+        isRepeating(after) &&
         after.dueDate
       ) {
+        const nextDue = advanceDate(after.dueDate, after.recurrence);
+        // 完了⇔未完了を往復したときに、次回分が二重にできないようにする。
+        const exists = next.some(
+          (t) =>
+            t.id !== id &&
+            t.title === after.title &&
+            (t.parentId ?? null) === (after.parentId ?? null) &&
+            t.dueDate === nextDue &&
+            t.status !== "done",
+        );
+        if (exists) return next;
         const clone: Task = {
           ...after,
           id: createId(),
@@ -208,7 +276,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
           startDate: after.startDate
             ? advanceDate(after.startDate, after.recurrence)
             : null,
-          dueDate: advanceDate(after.dueDate, after.recurrence),
+          dueDate: nextDue,
           googleEventId: null,
           progress: 0,
           issues: [],
