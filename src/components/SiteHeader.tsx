@@ -26,6 +26,7 @@ function hhmm(ms: number): string {
 const NAV = [
   { href: "/", label: "ホーム" },
   { href: "/tasks", label: "タスク" },
+  { href: "/projects", label: "PJ進捗" },
   { href: "/gantt", label: "ガント" },
   { href: "/calendar", label: "カレンダー" },
   { href: "/stats", label: "統計" },
